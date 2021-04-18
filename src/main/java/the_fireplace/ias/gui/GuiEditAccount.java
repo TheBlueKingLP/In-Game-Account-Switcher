@@ -2,8 +2,9 @@ package the_fireplace.ias.gui;
 
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AccountData;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
+
+import net.minecraft.util.text.TranslationTextComponent;
 import the_fireplace.ias.account.ExtendedAccountData;
-import the_fireplace.ias.enums.EnumBool;
 import the_fireplace.ias.tools.JavaTools;
 import the_fireplace.iasencrypt.EncryptionTools;
 /**
@@ -11,25 +12,25 @@ import the_fireplace.iasencrypt.EncryptionTools;
  * @author The_Fireplace
  * @author evilmidget38
  */
-class GuiEditAccount extends AbstractAccountGui {
+public class GuiEditAccount extends AbstractAccountGui {
 	private final ExtendedAccountData data;
 	private final int selectedIndex;
 
 	public GuiEditAccount(int index){
-		super("ias.editaccount");
+		super(new TranslationTextComponent("ias.editaccount"));
 		this.selectedIndex=index;
 		AccountData data = AltDatabase.getInstance().getAlts().get(index);
 
 		if(data instanceof ExtendedAccountData){
 			this.data = (ExtendedAccountData) data;
 		}else{
-			this.data = new ExtendedAccountData(data.user, data.pass, data.alias, 0, JavaTools.getJavaCompat().getDate(), EnumBool.UNKNOWN);
+			this.data = new ExtendedAccountData(data.user, data.pass, data.alias, 0, JavaTools.getDate(), null);
 		}
 	}
-
+	
 	@Override
-	public void initGui() {
-		super.initGui();
+	protected void init() {
+		super.init();
 		setUsername(EncryptionTools.decode(data.user));
 		setPassword(EncryptionTools.decode(data.pass));
 	}

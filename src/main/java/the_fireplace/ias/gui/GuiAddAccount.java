@@ -1,6 +1,8 @@
 package the_fireplace.ias.gui;
 
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
+
+import net.minecraft.util.text.TranslationTextComponent;
 import the_fireplace.ias.account.ExtendedAccountData;
 
 /**
@@ -12,7 +14,7 @@ public class GuiAddAccount extends AbstractAccountGui {
 
 	public GuiAddAccount()
 	{
-		super("ias.addaccount");
+		super(new TranslationTextComponent("ias.addaccount"));
 	}
 
 	@Override
