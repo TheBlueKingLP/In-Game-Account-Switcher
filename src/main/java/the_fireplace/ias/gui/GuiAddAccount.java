@@ -1,6 +1,7 @@
 package the_fireplace.ias.gui;
 
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
+
 import the_fireplace.ias.account.ExtendedAccountData;
 
 /**
