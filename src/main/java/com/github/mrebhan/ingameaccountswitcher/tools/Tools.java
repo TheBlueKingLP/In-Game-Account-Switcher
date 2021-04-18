@@ -1,5 +1,4 @@
 package com.github.mrebhan.ingameaccountswitcher.tools;
-
 import net.minecraft.client.gui.Gui;
 
 /**

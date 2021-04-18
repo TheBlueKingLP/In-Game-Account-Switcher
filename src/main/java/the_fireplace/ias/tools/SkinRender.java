@@ -1,14 +1,15 @@
 package the_fireplace.ias.tools;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Takes care of loading and drawing images to the screen. Adapted from http://www.minecraftforge.net/forum/index.php?topic=11991.0
@@ -34,9 +35,11 @@ public class SkinRender
 	private boolean loadPreview()
 	{
 		try {
-			BufferedImage image = ImageIO.read(file);
-			previewTexture = new DynamicTexture(image);
-			resourceLocation = textureManager.getDynamicTextureLocation(Reference.MODID, previewTexture);
+			FileInputStream fis = new FileInputStream(file);
+			NativeImage ni = NativeImage.read(fis);
+			fis.close();
+			previewTexture = new DynamicTexture(ni);
+			resourceLocation = textureManager.getDynamicTextureLocation("ias", previewTexture);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -56,6 +59,7 @@ public class SkinRender
 		previewTexture.updateDynamicTexture();
 
 		textureManager.bindTexture(resourceLocation);
+		GlStateManager.color3f(1F, 1F, 1F);
 		Gui.drawModalRectWithCustomSizedTexture(xPos, yPos, 0, 0, width, height, 16*4, 32*4);
 	}
 }

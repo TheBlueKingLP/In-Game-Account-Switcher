@@ -11,35 +11,35 @@ import net.minecraft.util.ResourceLocation;
  */
 public class GuiButtonWithImage extends GuiButton {
 
-	private static final ResourceLocation customButtonTextures = new ResourceLocation("accswitcher:textures/gui/custombutton.png");
-	public GuiButtonWithImage(int buttonId, int x, int y, int widthIn,
-			int heightIn, String buttonText) {
-		super(buttonId, x, y, widthIn, heightIn, buttonText);
+	private static final ResourceLocation customButtonTextures = new ResourceLocation("ias:textures/gui/custombutton.png");
+	public Runnable r;
+	public GuiButtonWithImage(int x, int y, int widthIn, int heightIn, String buttonText, Runnable r) {
+		super("1.13isbad".hashCode(), x, y, widthIn, heightIn, buttonText);
+		this.r = r;
 	}
-
+	
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
-	{
-		if (this.visible)
-		{
+	public void onClick(double mouseX, double mouseY) {
+		r.run();
+	}
+	
+	@Override
+	public void render(int mouseX, int mouseY, float delta) {
+		if (this.visible) {
+			Minecraft mc = Minecraft.getInstance();
 			FontRenderer fontrenderer = mc.fontRenderer;
 			mc.getTextureManager().bindTexture(customButtonTextures);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-			int k = this.getHoverState(this.hovered);
+			int k = this.hovered?2:1;
 			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+			GlStateManager.blendFuncSeparate(770, 771, 1, 0);
 			GlStateManager.blendFunc(770, 771);
-			this.drawTexturedModalRect(this.x, this.y, 0, 46 + k * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
-			this.mouseDragged(mc, mouseX, mouseY);
+			drawTexturedModalRect(this.x, this.y, 0, 46 + k * 20, this.width / 2, this.height);
+			drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
 			int l = 14737632;
 
-			if (packedFGColour != 0)
-			{
-				l = packedFGColour;
-			}
-			else if (!this.enabled)
+			if (!this.enabled)
 			{
 				l = 10526880;
 			}

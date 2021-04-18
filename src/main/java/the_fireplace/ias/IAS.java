@@ -1,56 +1,75 @@
 package the_fireplace.ias;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.Properties;
+
 import com.github.mrebhan.ingameaccountswitcher.MR;
-import net.minecraft.client.resources.I18n;
+
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import the_fireplace.ias.config.ConfigValues;
 import the_fireplace.ias.events.ClientEvents;
-import the_fireplace.ias.tools.Reference;
 import the_fireplace.ias.tools.SkinTools;
 import the_fireplace.iasencrypt.Standards;
 /**
  * @author The_Fireplace
  */
-@Mod(modid=Reference.MODID, name=Reference.MODNAME, clientSideOnly=true, guiFactory="the_fireplace.ias.config.IASGuiFactory", updateJSON = "http://thefireplace.bitnamiapp.com/jsons/ias.json", acceptedMinecraftVersions = "[1.11,)")
+@Mod("ias")
 public class IAS {
-	public static Configuration config;
-	private static Property CASESENSITIVE_PROPERTY;
-	private static Property ENABLERELOG_PROPERTY;
-
-	public static void syncConfig(){
-		ConfigValues.CASESENSITIVE = CASESENSITIVE_PROPERTY.getBoolean();
-		ConfigValues.ENABLERELOG = ENABLERELOG_PROPERTY.getBoolean();
-		if(config.hasChanged())
-			config.save();
+	public static Properties config = new Properties();
+	public static boolean CASESENSITIVE_PROPERTY;
+	public static boolean ENABLERELOG_PROPERTY;
+	public static void syncConfig(boolean save) {
+		ConfigValues.CASESENSITIVE = CASESENSITIVE_PROPERTY;
+		ConfigValues.ENABLERELOG = ENABLERELOG_PROPERTY;
+		config.setProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(CASESENSITIVE_PROPERTY));
+		config.setProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ENABLERELOG_PROPERTY));
+		if (save) {
+			try {
+				File f = new File(Minecraft.getInstance().gameDir, "config/ias.properties");
+				f.getParentFile().mkdirs();
+				FileWriter fw = new FileWriter(f);
+				config.store(fw, "IAS config");
+				fw.close();
+			} catch (Throwable t) {
+				System.err.println("Unable to save IAS config");
+				t.printStackTrace();
+			}
+		}
 	}
-
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event) {
-		config = new Configuration(event.getSuggestedConfigurationFile());
-		config.load();
-		CASESENSITIVE_PROPERTY = config.get(Configuration.CATEGORY_GENERAL, ConfigValues.CASESENSITIVE_NAME, ConfigValues.CASESENSITIVE_DEFAULT, I18n.format(ConfigValues.CASESENSITIVE_NAME+".tooltip"));
-		ENABLERELOG_PROPERTY = config.get(Configuration.CATEGORY_GENERAL, ConfigValues.ENABLERELOG_NAME, ConfigValues.ENABLERELOG_DEFAULT, I18n.format(ConfigValues.ENABLERELOG_NAME+".tooltip"));
-		syncConfig();
-		if(!event.getModMetadata().version.equals("${version}"))//Dev environment needs to use a local list, to avoid issues
+	
+	public IAS() {
+		try {
+			File f = new File(Minecraft.getInstance().gameDir, "config/ias.properties");
+			if (f.exists()) {
+				FileReader fr = new FileReader(f);
+				config.load(fr);
+				fr.close();
+			}
+			CASESENSITIVE_PROPERTY = Boolean.parseBoolean(config.getProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(ConfigValues.CASESENSITIVE_DEFAULT)));
+			ENABLERELOG_PROPERTY = Boolean.parseBoolean(config.getProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG_DEFAULT)));
+		} catch (Throwable t) {
+			System.err.println("Unable to load IAS config");
+			t.printStackTrace();
+		}
+		syncConfig(false);
+		try {
+			Class.forName("net.minecraft.util.math.MathHelper");
+		} catch (Throwable t) {
 			Standards.updateFolder();
-		else
-			System.out.println("Dev environment detected!");
-	}
-	@EventHandler
-	public void init(FMLInitializationEvent event){
+		}
 		MR.init();
 		MinecraftForge.EVENT_BUS.register(new ClientEvents());
 		Standards.importAccounts();
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientComplete);
 	}
-	@EventHandler
-	public void postInit(FMLPostInitializationEvent event){
-		SkinTools.cacheSkins();
+	
+	public void onClientComplete(FMLLoadCompleteEvent event) {
+		SkinTools.cacheSkins(false);
 	}
 }
