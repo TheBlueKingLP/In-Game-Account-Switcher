@@ -1,54 +1,50 @@
 package the_fireplace.ias.gui;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.util.Identifier;
 /**
  * The button with the image on it.
  * @author The_Fireplace
  */
-public class GuiButtonWithImage extends GuiButton {
+public class GuiButtonWithImage extends ButtonWidget {
+	private static final Identifier customButtonTextures = new Identifier("ias:textures/gui/custombutton.png");
 
-	private static final ResourceLocation customButtonTextures = new ResourceLocation("accswitcher:textures/gui/custombutton.png");
-	public GuiButtonWithImage(int buttonId, int x, int y, int widthIn,
-			int heightIn, String buttonText) {
-		super(buttonId, x, y, widthIn, heightIn, buttonText);
+	public GuiButtonWithImage(int x, int y, int widthIn,
+			int heightIn, String buttonText, PressAction p) {
+		super(x, y, widthIn, heightIn, buttonText, p);
 	}
-
+	
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
-	{
-		if (this.visible)
-		{
-			FontRenderer fontrenderer = mc.fontRenderer;
+	public void renderButton(int mouseX, int mouseY, float delta) {
+		if (this.visible) {
+			MinecraftClient mc = MinecraftClient.getInstance();
+			TextRenderer fontrenderer = mc.textRenderer;
 			mc.getTextureManager().bindTexture(customButtonTextures);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-			int k = this.getHoverState(this.hovered);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+			int k = this.isHovered?2:1;
 			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+			GlStateManager.blendFuncSeparate(770, 771, 1, 0);
 			GlStateManager.blendFunc(770, 771);
-			this.drawTexturedModalRect(this.x, this.y, 0, 46 + k * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
-			this.mouseDragged(mc, mouseX, mouseY);
+			blit(this.x, this.y, 0, 46 + k * 20, this.width / 2, this.height);
+			blit(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
 			int l = 14737632;
 
-			if (packedFGColour != 0)
-			{
-				l = packedFGColour;
-			}
-			else if (!this.enabled)
+			if (!this.active)
 			{
 				l = 10526880;
 			}
-			else if (this.hovered)
+			else if (this.isHovered)
 			{
 				l = 16777120;
 			}
 
-			this.drawCenteredString(fontrenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, l);
+			this.drawCenteredString(fontrenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, l);
 		}
 	}
 }
