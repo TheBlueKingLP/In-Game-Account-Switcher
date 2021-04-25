@@ -25,10 +25,6 @@ public class TitleScreenMixin extends Screen {
 	
 	@Inject(method = "init", at = @At("TAIL"))
 	public void onInit(CallbackInfo ci) {
-		if (!skinsLoaded) {
-			SkinTools.cacheSkins(false);
-			skinsLoaded = true;
-		}
 		modMenu = FabricLoader.getInstance().isModLoaded("modmenu");
 		addButton(new GuiButtonWithImage(width / 2 + 104, height / 4 + 48 + 72 + (modMenu?0:-12), 20, 20, "", btn -> {
 			if (Config.getInstance() == null) {
@@ -40,6 +36,10 @@ public class TitleScreenMixin extends Screen {
 
 	@Inject(method = "render", at = @At("TAIL"))
 	public void onRender(int mouseX, int mouseY, float delta, CallbackInfo ci) {
+		if (!skinsLoaded) {
+			SkinTools.cacheSkins(false);
+			skinsLoaded = true;
+		}
 		drawCenteredString(font, I18n.translate("ias.loggedinas") + " " + minecraft.getSession().getUsername() + ".", width / 2, height / 4 + 48 + 72 + 12 + (modMenu?32:22), 0xFFCC8888);
 	}
 }
