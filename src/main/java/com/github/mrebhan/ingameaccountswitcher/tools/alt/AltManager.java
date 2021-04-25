@@ -40,7 +40,7 @@ public class AltManager {
 	public Throwable setUser(String username, String password) {
 		Throwable throwable = null;
 		if(!MinecraftClient.getInstance().getSession().getUsername().equals(EncryptionTools.decode(username)) || MinecraftClient.getInstance().getSession().getAccessToken().equals("0")){
-			if (!MinecraftClient.getInstance().getSession().getAccessToken().equals("0"))
+			if (!MinecraftClient.getInstance().getSession().getAccessToken().equals("0") && !ConfigValues.ENABLERELOG)
 			{
 				for (AccountData data : AltDatabase.getInstance().getAlts())
 				{
@@ -68,8 +68,7 @@ public class AltManager {
 				throwable = e;
 			}
 		}else{
-			if(!ConfigValues.ENABLERELOG)
-				throwable = new AlreadyLoggedInException();
+			if(!ConfigValues.ENABLERELOG) throwable = new AlreadyLoggedInException();
 		}
 		return throwable;
 	}

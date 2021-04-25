@@ -20,7 +20,7 @@ public abstract class AbstractAccountGui extends Screen
 {
 	private final String actionString;
 	private TextFieldWidget username;
-	private TextFieldWidget password;
+	private GuiPasswordField password;
 	private ButtonWidget complete;
 	protected boolean hasUserChanged = false;
 
