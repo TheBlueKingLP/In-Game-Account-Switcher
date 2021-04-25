@@ -21,7 +21,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 //This class was removed from 1.16+.
 @OnlyIn(Dist.CLIENT)
-@SuppressWarnings("deprecation")
 public abstract class SlotGui extends FocusableGui implements IRenderable {
 	protected static final int NO_DRAG = -1;
 	protected static final int DRAG_OUTSIDE = -2;

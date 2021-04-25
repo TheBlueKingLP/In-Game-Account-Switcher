@@ -40,7 +40,7 @@ public class AltManager {
 	public Throwable setUser(String username, String password) {
 		Throwable throwable = null;
 		if(!Minecraft.getInstance().getUser().getName().equals(EncryptionTools.decode(username)) || Minecraft.getInstance().getUser().getAccessToken().equals("0")){
-			if (!Minecraft.getInstance().getUser().getAccessToken().equals("0"))
+			if (!Minecraft.getInstance().getUser().getAccessToken().equals("0") && !ConfigValues.ENABLERELOG)
 			{
 				for (AccountData data : AltDatabase.getInstance().getAlts())
 				{
