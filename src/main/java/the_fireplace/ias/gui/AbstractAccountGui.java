@@ -1,15 +1,17 @@
 package the_fireplace.ias.gui;
 
+import java.io.IOException;
+
+import org.lwjgl.input.Keyboard;
+
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AccountData;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
-import org.lwjgl.input.Keyboard;
 import the_fireplace.iasencrypt.EncryptionTools;
-
-import java.io.IOException;
 
 /**
  * @author evilmidget38
@@ -34,10 +36,10 @@ public abstract class AbstractAccountGui extends GuiScreen
 		this.buttonList.clear();
 		this.buttonList.add(complete = new GuiButton(2, this.width / 2 - 152, this.height - 28, 150, 20, I18n.format(this.actionString)));
 		this.buttonList.add(new GuiButton(3, this.width / 2 + 2, this.height - 28, 150, 20, I18n.format("gui.cancel")));
-		username = new GuiTextField(0, this.fontRenderer, this.width / 2 - 100, 60, 200, 20);
+		username = new GuiTextField(0, this.fontRendererObj, this.width / 2 - 100, 60, 200, 20);
 		username.setFocused(true);
 		username.setMaxStringLength(64);
-		password = new GuiPasswordField(1, this.fontRenderer, this.width / 2 - 100, 90, 200, 20);
+		password = new GuiPasswordField(1, this.fontRendererObj, this.width / 2 - 100, 90, 200, 20);
 		password.setMaxStringLength(64);
 		complete.enabled = false;
 	}
@@ -45,9 +47,9 @@ public abstract class AbstractAccountGui extends GuiScreen
 	@Override
 	public void drawScreen(int par1, int par2, float par3) {
 		this.drawDefaultBackground();
-		this.drawCenteredString(fontRenderer, I18n.format(this.actionString), this.width / 2, 7, -1);
-		this.drawCenteredString(fontRenderer, I18n.format("ias.username"), this.width / 2 - 130, 66, -1);
-		this.drawCenteredString(fontRenderer, I18n.format("ias.password"), this.width / 2 - 130, 96, -1);
+		this.drawCenteredString(fontRendererObj, I18n.format(this.actionString), this.width / 2, 7, -1);
+		this.drawCenteredString(fontRendererObj, I18n.format("ias.username"), this.width / 2 - 130, 66, -1);
+		this.drawCenteredString(fontRendererObj, I18n.format("ias.password"), this.width / 2 - 130, 96, -1);
 		username.drawTextBox();
 		password.drawTextBox();
 		super.drawScreen(par1, par2, par3);

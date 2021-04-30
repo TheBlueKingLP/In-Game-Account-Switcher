@@ -1,32 +1,33 @@
 package the_fireplace.ias.config;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.IModGuiFactory;
-
-import java.util.Set;
+import ru.vidtu.iasfork.IASConfigScreen;
 /**
  *	This is the Gui Factory
  * @author The_Fireplace
  *
  */
 public class IASGuiFactory implements IModGuiFactory {
+	@Override
+	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement arg0) {
+		return null;
+	}
 
 	@Override
-	public void initialize(Minecraft minecraftInstance) {}
+	public void initialize(Minecraft arg0) {}
 
-  @Override
-  public boolean hasConfigGui() {
-    return true;
-  }
-
-  @Override
-  public GuiScreen createConfigGui(GuiScreen parentScreen) {
-    return new IASConfigGui(parentScreen);
-  }
+	@Override
+	public Class<? extends GuiScreen> mainConfigGuiClass() {
+		return IASConfigScreen.class;
+	}
 
 	@Override
 	public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
-		return null;
+		return new HashSet<>();
 	}
 }

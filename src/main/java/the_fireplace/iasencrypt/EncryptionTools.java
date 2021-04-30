@@ -1,15 +1,19 @@
 package the_fireplace.iasencrypt;
 
-import java.util.Base64;
-
-import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author The_Fireplace
@@ -21,7 +25,7 @@ public final class EncryptionTools {
 	private static Base64.Decoder decoder = Base64.getDecoder();
 	private static MessageDigest sha512 = getSha512Hasher();
 	private static KeyGenerator keyGen = getAESGenerator();
-	private static String secretSalt = "${secretSalt}";
+	private static String secretSalt = "DownWithTheLexManosIsAlwaysRightFoundation";
 
 	public static String decodeOld(String text) {
 		try {
@@ -54,7 +58,7 @@ public final class EncryptionTools {
 
 			return new String(cipher.doFinal(data), DEFAULT_ENCODING);
 		} catch (BadPaddingException e) {
-			throw new RuntimeException("The password does not match", e);
+			return "";
 		} catch (IllegalBlockSizeException | InvalidKeyException | IOException | NoSuchAlgorithmException
 				| NoSuchPaddingException e) {
 			throw new RuntimeException(e);
