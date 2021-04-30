@@ -1,13 +1,17 @@
 package the_fireplace.ias;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.Properties;
+
 import com.github.mrebhan.ingameaccountswitcher.MR;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import ru.vidtu.iasfork.IASConfigScreen;
@@ -20,22 +24,45 @@ import the_fireplace.iasencrypt.Standards;
  */
 @Mod("ias")
 public class IAS {
-	public static ForgeConfigSpec config;
-	public static ForgeConfigSpec.BooleanValue CASESENSITIVE_PROPERTY;
-	public static ForgeConfigSpec.BooleanValue ENABLERELOG_PROPERTY;
+	public static Properties config = new Properties();
 	public static void syncConfig(boolean save) {
-		ConfigValues.CASESENSITIVE = CASESENSITIVE_PROPERTY.get();
-		ConfigValues.ENABLERELOG = ENABLERELOG_PROPERTY.get();
-		if (save) config.save();
+		config.setProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(ConfigValues.CASESENSITIVE));
+		config.setProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG));
+		config.setProperty(ConfigValues.TEXT_POS_NAME + ".x", ConfigValues.TEXT_X);
+		config.setProperty(ConfigValues.TEXT_POS_NAME + ".y", ConfigValues.TEXT_Y);
+		if (save) {
+			try {
+				Minecraft mc = Minecraft.getInstance();
+				File f = new File(mc.gameDir, "config/ias.properties");
+				f.getParentFile().mkdirs();
+				FileWriter fw = new FileWriter(f);
+				config.store(fw, "IAS config");
+				fw.close();
+			} catch (Throwable t) {
+				System.err.println("Unable to save IAS config");
+				t.printStackTrace();
+			}
+		}
 	}
 	
 	public IAS() {
+		try {
+			Minecraft mc = Minecraft.getInstance();
+			File f = new File(mc.gameDir, "config/ias.properties");
+			if (f.exists()) {
+				FileReader fr = new FileReader(f);
+				config.load(fr);
+				fr.close();
+			}
+			ConfigValues.CASESENSITIVE = Boolean.parseBoolean(config.getProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(ConfigValues.CASESENSITIVE_DEFAULT)));
+			ConfigValues.ENABLERELOG = Boolean.parseBoolean(config.getProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG_DEFAULT)));
+			ConfigValues.TEXT_X = config.getProperty(ConfigValues.TEXT_POS_NAME + ".x", "");
+			ConfigValues.TEXT_Y = config.getProperty(ConfigValues.TEXT_POS_NAME + ".y", "");
+		} catch (Throwable t) {
+			System.err.println("Unable to load IAS config");
+			t.printStackTrace();
+		}
 		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, s) -> new IASConfigScreen(s));
-		ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-		CASESENSITIVE_PROPERTY = builder.comment("Should account searches be case sensitive?").define(ConfigValues.CASESENSITIVE_NAME, ConfigValues.CASESENSITIVE_DEFAULT);
-		ENABLERELOG_PROPERTY = builder.comment("Enables logging in to the account you are already logged in to.").define(ConfigValues.ENABLERELOG_NAME, ConfigValues.ENABLERELOG_DEFAULT);
-		config = builder.build();
-		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, config);
 		syncConfig(false);
 		try {
 			Class.forName("net.minecraft.util.math.MathHelper");

@@ -22,5 +22,6 @@
     "ias.timesused": "Использован:",
     "ias.lastused": "Последнее использование:",
     "ias.alreadyloggedin": "Вы уже вошли в этот аккаунт.",
-    "ias.reloadskins": "Перезагрузить скины"
+    "ias.reloadskins": "Перезагрузить скины",
+    "ias.cfg.textpos": "Позиция текста"
 }
