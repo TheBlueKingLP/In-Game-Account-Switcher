@@ -16,13 +16,11 @@ import the_fireplace.iasencrypt.Standards;
  */
 public class IAS implements ClientModInitializer {
 	public static Properties config = new Properties();
-	public static boolean CASESENSITIVE_PROPERTY;
-	public static boolean ENABLERELOG_PROPERTY;
 	public static void syncConfig(boolean save) {
-		ConfigValues.CASESENSITIVE = CASESENSITIVE_PROPERTY;
-		ConfigValues.ENABLERELOG = ENABLERELOG_PROPERTY;
-		config.setProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(CASESENSITIVE_PROPERTY));
-		config.setProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ENABLERELOG_PROPERTY));
+		config.setProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(ConfigValues.CASESENSITIVE));
+		config.setProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG));
+		config.setProperty(ConfigValues.TEXT_POS_NAME + ".x", ConfigValues.TEXT_X);
+		config.setProperty(ConfigValues.TEXT_POS_NAME + ".y", ConfigValues.TEXT_Y);
 		if (save) {
 			try {
 				MinecraftClient mc = MinecraftClient.getInstance();
@@ -47,8 +45,10 @@ public class IAS implements ClientModInitializer {
 				config.load(fr);
 				fr.close();
 			}
-			CASESENSITIVE_PROPERTY = Boolean.parseBoolean(config.getProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(ConfigValues.CASESENSITIVE_DEFAULT)));
-			ENABLERELOG_PROPERTY = Boolean.parseBoolean(config.getProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG_DEFAULT)));
+			ConfigValues.CASESENSITIVE = Boolean.parseBoolean(config.getProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(ConfigValues.CASESENSITIVE_DEFAULT)));
+			ConfigValues.ENABLERELOG = Boolean.parseBoolean(config.getProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG_DEFAULT)));
+			ConfigValues.TEXT_X = config.getProperty(ConfigValues.TEXT_POS_NAME + ".x", "");
+			ConfigValues.TEXT_Y = config.getProperty(ConfigValues.TEXT_POS_NAME + ".y", "");
 		} catch (Throwable t) {
 			System.err.println("Unable to load IAS config");
 			t.printStackTrace();

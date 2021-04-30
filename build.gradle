@@ -6,7 +6,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = "InGameAccountSwitcher-Fabric-1.16.5"
-version = "7.0.6"
+version = "7.0.7"
 
 repositories {
     maven { url = "https://maven.terraformersmc.com/releases/" }
