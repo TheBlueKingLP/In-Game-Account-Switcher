@@ -4,7 +4,7 @@ license="All rights reserved"
 issueTrackerURL="https://github.com/VidTuGit/In-Game-Account-Switcher/issues"
 [[mods]]
 modId="ias"
-version="7.0.6"
+version="7.0.7"
 displayName="In-Game Account Switcher"
 updateJSONURL="https://raw.githubusercontent.com/VidTuGit/In-Game-Account-Switcher/main/updater-forge.json"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/in-game-account-switcher"
