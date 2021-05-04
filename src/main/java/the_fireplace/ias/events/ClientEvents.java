@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
@@ -37,11 +36,10 @@ public class ClientEvents {
 				textY = ((Number) engine.eval(ConfigValues.TEXT_Y.replace("%width%", Integer.toString(event.getGui().width))
 						.replace("%height%", Integer.toString(event.getGui().height)))).intValue();
 			} catch (Throwable t) {
-				t.printStackTrace();
 				textX = event.getGui().width / 2;
 				textY = event.getGui().height / 4 + 48 + 72 + 12 + 22;
 			}
-			event.addWidget(new GuiButtonWithImage(gui.width / 2 + 104, gui.height / 4 + 48 + 72 - 12, 20, 20, new StringTextComponent(""), btn -> {
+			event.addWidget(new GuiButtonWithImage(gui.width / 2 + 104, gui.height / 4 + 48 + 72 - 12, btn -> {
 				if(Config.getInstance() == null){
 					Config.load();
 				}
