@@ -43,7 +43,7 @@ public class TitleScreenMixin extends Screen {
 			textX = width / 2;
 			textY = height / 4 + 48 + 72 + 12 + (modMenu?32:22);
 		}
-		addButton(new GuiButtonWithImage(width / 2 + 104, height / 4 + 48 + 72 + (modMenu?0:-12), 20, 20, "", btn -> {
+		addButton(new GuiButtonWithImage(width / 2 + 104, height / 4 + 48 + 72 + (modMenu?0:-12), btn -> {
 			if (Config.getInstance() == null) {
 				Config.load();
 			}
