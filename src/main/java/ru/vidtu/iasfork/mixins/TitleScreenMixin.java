@@ -15,7 +15,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import ru.vidtu.iasfork.IASMMPos;
 import the_fireplace.ias.config.ConfigValues;
@@ -46,7 +45,7 @@ public class TitleScreenMixin extends Screen {
 			textX = width / 2;
 			textY = height / 4 + 48 + 72 + 12 + (modMenu?32:22);
 		}
-		addButton(new GuiButtonWithImage(width / 2 + 104, height / 4 + 48 + 72 + (modMenu?IASMMPos.buttonOffset():-12), 20, 20, new LiteralText(""), btn -> {
+		addButton(new GuiButtonWithImage(width / 2 + 104, height / 4 + 48 + 72 + (modMenu?IASMMPos.buttonOffset():-12), btn -> {
 			if (Config.getInstance() == null) {
 				Config.load();
 			}
