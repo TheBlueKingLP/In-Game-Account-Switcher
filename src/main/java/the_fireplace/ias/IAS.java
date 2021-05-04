@@ -64,7 +64,7 @@ public class IAS {
 		}
 		syncConfig(false);
 		try {
-			Class.forName("net.minecraft.util.math.MathHelper");
+			Class.forName("net.minecraft.util.MathHelper");
 		} catch (Throwable t) {
 			Standards.updateFolder();
 		}
