@@ -1,6 +1,10 @@
 package the_fireplace.ias.gui;
 
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.resources.I18n;
+import ru.vidtu.iasfork.msauth.MSAuthScreen;
 import the_fireplace.ias.account.ExtendedAccountData;
 
 /**
@@ -13,6 +17,22 @@ public class GuiAddAccount extends AbstractAccountGui {
 	public GuiAddAccount()
 	{
 		super("ias.addaccount");
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void initGui() {
+		super.initGui();
+		buttonList.add(new GuiButton(13, width / 2 - 60, height / 3 * 2, 120, 20, I18n.format("ias.msauth.btn")));
+	}
+	
+	@Override
+	public void actionPerformed(GuiButton button) {
+		if (button.id == 13) {
+			mc.displayGuiScreen(new MSAuthScreen(this));
+			return;
+		}
+		super.actionPerformed(button);
 	}
 
 	@Override
