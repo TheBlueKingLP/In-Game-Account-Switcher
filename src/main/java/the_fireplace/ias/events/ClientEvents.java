@@ -39,7 +39,7 @@ public class ClientEvents {
 				textX = event.getGui().width / 2;
 				textY = event.getGui().height / 4 + 48 + 72 + 12 + 22;
 			}
-			event.addWidget(new GuiButtonWithImage(gui.width / 2 + 104, gui.height / 4 + 48 + 72 - 12, 20, 20, "", btn -> {
+			event.addWidget(new GuiButtonWithImage(gui.width / 2 + 104, gui.height / 4 + 48 + 72 - 12, btn -> {
 				if(Config.getInstance() == null){
 					Config.load();
 				}
