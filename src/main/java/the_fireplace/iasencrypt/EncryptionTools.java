@@ -43,7 +43,7 @@ public final class EncryptionTools {
 
 			return new String(encoder.encode(cipher.doFinal(data)));
 		} catch (BadPaddingException e) {
-			return "";
+			throw new RuntimeException("The password does not match", e);
 		} catch (IllegalBlockSizeException | InvalidKeyException | IOException | NoSuchAlgorithmException
 				| NoSuchPaddingException e) {
 			throw new RuntimeException(e);

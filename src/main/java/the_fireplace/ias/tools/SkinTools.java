@@ -12,8 +12,6 @@ import java.util.Base64;
 
 import javax.imageio.ImageIO;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AccountData;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
 import com.google.gson.Gson;
@@ -116,13 +114,11 @@ public class SkinTools {
 		Minecraft mc = Minecraft.getInstance();
 		for (int i = 0; i < AltDatabase.getInstance().getAlts().size(); i++) {
 			AccountData data = AltDatabase.getInstance().getAlts().get(i);
-			GLFW.glfwSetWindowTitle(mc.mainWindow.getHandle(), "Minecraft 1.13.2 (IAS: Updating skin " + data.alias + "...)");
 			File file = new File(cachedir, data.alias + ".png");
 			if (force || !file.exists()) {
 				loadFromMojang(mc, data.alias, file);
 			}
 		}
-		GLFW.glfwSetWindowTitle(mc.mainWindow.getHandle(), "Minecraft 1.13.2");
 	}
 	
 	public static void loadFromMojang(Minecraft mc, String name, File f) {
