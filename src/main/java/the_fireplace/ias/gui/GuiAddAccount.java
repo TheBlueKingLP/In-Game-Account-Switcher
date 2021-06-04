@@ -2,6 +2,7 @@ package the_fireplace.ias.gui;
 
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
 
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import ru.vidtu.iasfork.msauth.MSAuthScreen;
@@ -14,9 +15,8 @@ import the_fireplace.ias.account.ExtendedAccountData;
  */
 public class GuiAddAccount extends AbstractAccountGui {
 
-	public GuiAddAccount()
-	{
-		super("ias.addaccount");
+	public GuiAddAccount(Screen prev) {
+		super(prev, "ias.addaccount");
 	}
 	
 	@Override

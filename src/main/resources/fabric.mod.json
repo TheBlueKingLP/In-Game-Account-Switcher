@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "id": "ias",
-  "version": "7.1.0-pre1",
+  "version": "7.1.0-pre2",
   "name": "In-Game Account Switcher",
   "description": "Allows you to change which account you are signed in to in-game without restarting Minecraft.",
   "authors": [
     "The_Fireplace",
     "The_BrainStone",
-    "deFENCE_(aka MRebhan)",
+    "2xsaiko",
     "Elvm",
     "VidTu"
   ],
@@ -18,7 +18,7 @@
   },
   "license": "GNU LGPL 3.0",
   "icon": "iaslogo.png",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "client": [
       "the_fireplace.ias.IAS"

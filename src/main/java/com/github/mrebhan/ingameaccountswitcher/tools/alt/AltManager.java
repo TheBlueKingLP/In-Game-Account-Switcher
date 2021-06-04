@@ -68,8 +68,7 @@ public class AltManager {
 				throwable = e;
 			}
 		}else{
-			if(!ConfigValues.ENABLERELOG)
-				throwable = new AlreadyLoggedInException();
+			if(!ConfigValues.ENABLERELOG) throwable = new AlreadyLoggedInException();
 		}
 		return throwable;
 	}

@@ -23,6 +23,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
+import ru.vidtu.iasfork.msauth.MicrosoftAccount;
 
 /**
  * Tools that have to do with Skins
@@ -34,7 +35,6 @@ public class SkinTools {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	public static final File cachedir = new File(MinecraftClient.getInstance().runDirectory, "cachedImages/skins/");
 	private static final File skinOut = new File(cachedir, "temp.png");
-	
 	public static void buildSkin(String name) {
 		try {
 			File f = new File(cachedir, name + ".png");
@@ -120,6 +120,14 @@ public class SkinTools {
 			File file = new File(cachedir, data.alias + ".png");
 			if (force || !file.exists()) {
 				loadFromMojang(mc, data.alias, file);
+			}
+		}
+		for (int i = 0; i < MicrosoftAccount.msaccounts.size(); i++) {
+			MicrosoftAccount data = MicrosoftAccount.msaccounts.get(i);
+			mc.getWindow().setTitle("Minecraft* " + SharedConstants.getGameVersion().getName() + " (IAS: Updating skin " + data.alias() + "...)");
+			File file = new File(cachedir, data.alias() + ".png");
+			if (force || !file.exists()) {
+				loadFromMojang(mc, data.alias(), file);
 			}
 		}
 		mc.updateWindowTitle();

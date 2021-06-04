@@ -31,8 +31,8 @@ public class TitleScreenMixin extends Screen {
 	@Inject(method = "init", at = @At("TAIL"))
 	public void onInit(CallbackInfo ci) {
 		if (!skinsLoaded) {
-			SkinTools.cacheSkins(false);
 			modMenu = FabricLoader.getInstance().isModLoaded("modmenu");
+			SkinTools.cacheSkins(false);
 			skinsLoaded = true;
 		}
 		try {
@@ -47,7 +47,7 @@ public class TitleScreenMixin extends Screen {
 			if (Config.getInstance() == null) {
 				Config.load();
 			}
-			minecraft.openScreen(new GuiAccountSelector());
+			minecraft.openScreen(new GuiAccountSelector(this));
 		}));
 	}
 

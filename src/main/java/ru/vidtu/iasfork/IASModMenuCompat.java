@@ -1,11 +1,18 @@
 package ru.vidtu.iasfork;
 
-import io.github.prospector.modmenu.api.ConfigScreenFactory;
+import java.util.function.Function;
+
 import io.github.prospector.modmenu.api.ModMenuApi;
+import net.minecraft.client.gui.screen.Screen;
 
 public class IASModMenuCompat implements ModMenuApi {
 	@Override
-	public ConfigScreenFactory<?> getModConfigScreenFactory() {
+	public String getModId() {
+		return "ias";
+	}
+	
+	@Override
+	public Function<Screen, ? extends Screen> getConfigScreenFactory() {
 		return screen -> new IASConfigScreen(screen);
 	}
 

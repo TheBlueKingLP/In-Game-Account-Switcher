@@ -16,17 +16,17 @@ import the_fireplace.iasencrypt.EncryptionTools;
  * @author evilmidget38
  * @author The_Fireplace
  */
-public abstract class AbstractAccountGui extends Screen
-{
+public abstract class AbstractAccountGui extends Screen {
+	public final Screen prev;
 	private final String actionString;
 	private TextFieldWidget username;
-	private TextFieldWidget password;
+	private GuiPasswordField password;
 	private ButtonWidget complete;
 	protected boolean hasUserChanged = false;
 
-	public AbstractAccountGui(String actionString)
-	{
+	public AbstractAccountGui(Screen prev, String actionString) {
 		super(new LiteralText(actionString));
+		this.prev = prev;
 		this.actionString = actionString;
 	}
 	
@@ -85,7 +85,7 @@ public abstract class AbstractAccountGui extends Screen
 	}
 
 	private void escape(){
-		minecraft.openScreen(new GuiAccountSelector());
+		minecraft.openScreen(prev);
 	}
 
 	public String getUsername()
