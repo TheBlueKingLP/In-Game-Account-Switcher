@@ -20,6 +20,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 //This class was removed from 1.16+.
+@SuppressWarnings("deprecation")
 @OnlyIn(Dist.CLIENT)
 public abstract class SlotGui extends FocusableGui implements IRenderable {
 	protected static final int NO_DRAG = -1;
@@ -167,7 +168,6 @@ public abstract class SlotGui extends FocusableGui implements IRenderable {
 			this.capYPosition();
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder bufferbuilder = tessellator.getBuilder();
-			// Forge: background rendering moved into separate method.
 			this.drawContainerBackground(tessellator);
 			int k = this.x0 + this.width / 2 - this.getRowWidth() / 2 + 2;
 			int l = this.y0 + 4 - (int) this.yo;

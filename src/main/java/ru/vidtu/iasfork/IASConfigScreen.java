@@ -13,7 +13,7 @@ import the_fireplace.ias.config.ConfigValues;
 
 public class IASConfigScreen extends Screen {
 	public final Screen prev;
-	public CheckboxButton caseS, relog;
+	public CheckboxButton caseS, relog, mpscreen;
 	public TextFieldWidget textX, textY;
 	public IASConfigScreen(Screen prev) {
 		super(new StringTextComponent("ias.properties"));
@@ -26,6 +26,7 @@ public class IASConfigScreen extends Screen {
 		addButton(relog = new CheckboxButton(width / 2 - font.width(new TranslationTextComponent(ConfigValues.ENABLERELOG_NAME)) / 2 - 24, 60, 20, 20, new TranslationTextComponent(ConfigValues.ENABLERELOG_NAME), ConfigValues.ENABLERELOG));
 		addButton(textX = new TextFieldWidget(font, width / 2 - 100, 90, 98, 20, new StringTextComponent("X")));
 		addButton(textY = new TextFieldWidget(font, width / 2 + 2, 90, 98, 20, new StringTextComponent("Y")));
+		addButton(mpscreen = new CheckboxButton(width / 2 - font.width(new TranslationTextComponent(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME)) / 2 - 24, 112, 20, 20, new TranslationTextComponent(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME), ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN));
 		addButton(new Button(width / 2 - 75, height - 24, 150, 20, new TranslationTextComponent("gui.done"), btn -> {
 			minecraft.setScreen(prev);
 		}));
@@ -46,6 +47,7 @@ public class IASConfigScreen extends Screen {
 		ConfigValues.ENABLERELOG = relog.selected();
 		ConfigValues.TEXT_X = textX.getValue();
 		ConfigValues.TEXT_Y = textY.getValue();
+		ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN = mpscreen.selected();
 		IAS.syncConfig(true);
 	}
 	

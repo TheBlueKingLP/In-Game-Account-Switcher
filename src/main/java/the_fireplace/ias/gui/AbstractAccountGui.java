@@ -20,16 +20,18 @@ import the_fireplace.iasencrypt.EncryptionTools;
  */
 public abstract class AbstractAccountGui extends Screen
 {
+	public final Screen prev;
 	private final ITextComponent actionString;
 	private TextFieldWidget username;
 	private TextFieldWidget password;
 	private Button complete;
 	protected boolean hasUserChanged = false;
 
-	public AbstractAccountGui(ITextComponent actionString)
+	public AbstractAccountGui(Screen prev, ITextComponent actionString)
 	{
 		super(actionString);
 		this.actionString = actionString;
+		this.prev = prev;
 	}
 	
 	@Override
@@ -87,7 +89,7 @@ public abstract class AbstractAccountGui extends Screen
 	}
 
 	private void escape(){
-		minecraft.setScreen(new GuiAccountSelector());
+		minecraft.setScreen(prev);
 	}
 
 	public String getUsername()
