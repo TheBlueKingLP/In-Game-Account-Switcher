@@ -3,32 +3,56 @@ package ru.vidtu.iasfork.msauth;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.opengl.GL11;
+
+import com.github.mrebhan.ingameaccountswitcher.MR;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Session;
+import ru.vidtu.iasfork.msauth.AuthSys.MicrosoftAuthException;
+import the_fireplace.ias.gui.AbstractAccountGui;
+import the_fireplace.ias.gui.GuiAccountSelector;
+import the_fireplace.iasencrypt.EncryptionTools;
 
-public class MSAuthScreen extends GuiScreen {
+public class MSAuthScreen extends GuiScreen implements MSAuthHandler {
 	public static final String[] symbols = new String[]{"▃ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▃", "_ ▃ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄",
 			"_ _ ▃ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅", "_ _ _ ▃ ▄ ▅ ▆ ▇ █ ▇ ▆", "_ _ _ _ ▃ ▄ ▅ ▆ ▇ █ ▇", "_ _ _ _ _ ▃ ▄ ▅ ▆ ▇ █",
 			"_ _ _ _ ▃ ▄ ▅ ▆ ▇ █ ▇", "_ _ _ ▃ ▄ ▅ ▆ ▇ █ ▇ ▆", "_ _ ▃ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅", "_ ▃ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄",
 			"▃ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▃", "▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▃ _", "▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▃ _ _", "▆ ▇ █ ▇ ▆ ▅ ▄ ▃ _ _ _",
 			"▇ █ ▇ ▆ ▅ ▄ ▃ _ _ _ _", "█ ▇ ▆ ▅ ▄ ▃ _ _ _ _ _", "▇ █ ▇ ▆ ▅ ▄ ▃ _ _ _ _", "▆ ▇ █ ▇ ▆ ▅ ▄ ▃ _ _ _",
 			"▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▃ _ _", "▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▃ _"};
+	private static final ResourceLocation DEMO_BG = new ResourceLocation("textures/gui/demo_background.png");
+	
 	public GuiScreen prev;
 	public List<String> text = new ArrayList<>();
 	public boolean endTask = false;
 	public int tick;
+	public final boolean add;
+	public boolean cancelButton = true;
+	
 	public MSAuthScreen(GuiScreen prev) {
 		this.prev = prev;
+		this.add = true;
 		AuthSys.start(this);
+	}
+	
+	public MSAuthScreen(GuiScreen prev, String token, String refresh) {
+		this.prev = prev;
+		this.add = false;
+		AuthSys.start(token, refresh, this);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui() {
-		buttonList.add(new GuiButton(0, width / 2 - 50, height - 24, 100, 20, I18n.format("gui.cancel")));
+		GuiButton btn = new GuiButton(0, width / 2 - 50, (this.height + 114) / 2, 100, 20, I18n.format("gui.cancel"));
+		btn.enabled = cancelButton;
+		buttonList.add(btn);
 	}
 	
 	@Override
@@ -37,39 +61,81 @@ public class MSAuthScreen extends GuiScreen {
 	}
 	
 	@Override
+	public void setWorldAndResolution(Minecraft client, int width, int height) {
+		prev.setWorldAndResolution(client, width, height);
+		super.setWorldAndResolution(client, width, height);
+	}
+	
+	@Override
 	public void updateScreen() {
 		tick++;
+		((GuiButton)buttonList.get(0)).enabled = cancelButton;
 	}
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float delta) {
 		drawDefaultBackground();
-		drawCenteredString(fontRendererObj, I18n.format("ias.msauth.title"), width / 2, 10, -1);
+		
+		if (prev != null) prev.drawScreen(0, 0, delta);
+		drawRect(0, 0, width, height, Integer.MIN_VALUE);
+		
+		GL11.glColor3f(1F, 1F, 1F);
+		this.mc.getTextureManager().bindTexture(DEMO_BG);
+		this.drawTexturedModalRect((this.width - 248) / 2, (this.height - 166) / 2, 0, 0, 248, 166);
+		
+		fontRendererObj.drawString(I18n.format("ias.msauth.title"), width / 2 - fontRendererObj.getStringWidth(I18n.format("ias.msauth.title")) / 2, (this.height - 156) / 2, -16777216);
 		for (int i = 0; i < text.size(); i++) {
-			drawCenteredString(fontRendererObj, text.get(i), width / 2, height / 2 + i * 10, -1);
+			fontRendererObj.drawString(text.get(i), width / 2 - fontRendererObj.getStringWidth(text.get(i)) / 2, height / 2 + i * 10 - text.size() * 5, 0xFF353535);
 		}
-		if (!endTask) drawCenteredString(fontRendererObj, symbols[tick % symbols.length], width / 2, height / 3 * 2, -256);
+		if (!endTask) fontRendererObj.drawString(symbols[tick % symbols.length], width / 2 - fontRendererObj.getStringWidth(symbols[tick % symbols.length]) / 2, height - 10, 0xFFFF9900);
 		super.drawScreen(mouseX, mouseY, delta);
 	}
 
 	@Override
 	public void onGuiClosed() {
 		AuthSys.stop();
+		prev.onGuiClosed();
 		super.onGuiClosed();
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Override
 	public void setState(String s) {
 		Minecraft mc = Minecraft.getMinecraft();
-		mc.func_152344_a(() -> this.text = mc.fontRenderer.listFormattedStringToWidth(I18n.format(s), width));
+		mc.func_152344_a(() -> this.text = mc.fontRenderer.listFormattedStringToWidth(I18n.format(s), 240));
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public void error(String error) {
+	@Override
+	public void error(Throwable t) {
+		cancelButton = true;
 		Minecraft mc = Minecraft.getMinecraft();
 		mc.func_152344_a(() -> {
-			this.text = mc.fontRenderer.listFormattedStringToWidth(EnumChatFormatting.RED + I18n.format("ias.msauth.error", error), width);
 			endTask = true;
+			if (t instanceof MicrosoftAuthException) {
+				this.text = mc.fontRenderer.listFormattedStringToWidth(EnumChatFormatting.DARK_RED + I18n.format("ias.msauth.error", t.getMessage()), 240);
+			} else {
+				this.text = mc.fontRenderer.listFormattedStringToWidth(EnumChatFormatting.DARK_RED + I18n.format("ias.msauth.error", t.toString()), 240);
+			}
 		});
+	}
+
+	@Override
+	public void success(String name, String uuid, String token, String refresh) {
+		Minecraft mc = Minecraft.getMinecraft();
+		mc.func_152344_a(() -> {
+			if (add) {
+				MicrosoftAccount.msaccounts.add(new MicrosoftAccount(name, EncryptionTools.encode(token), EncryptionTools.encode(refresh)));
+				mc.displayGuiScreen(new GuiAccountSelector(prev instanceof AbstractAccountGui?(((AbstractAccountGui)prev).prev instanceof GuiAccountSelector?((GuiAccountSelector)((AbstractAccountGui)prev).prev).prev:((AbstractAccountGui)prev).prev):prev));
+			} else {
+				MR.setSession(new Session(name, uuid, token, "mojang"));
+				mc.displayGuiScreen(prev);
+			}
+		});
+	}
+
+	@Override
+	public void cancellble(boolean b) {
+		this.cancelButton = b;
 	}
 }

@@ -19,12 +19,12 @@ buildscript {
 
 apply plugin: 'forge'
 apply plugin: 'java'
-version = "7.1.0-pre1"
+version = "7.1.0-pre2"
 archivesBaseName = "InGameAccountSwitcher-Forge-1.7.10"
 
 minecraft {
     version = "1.7.10-10.13.4.1558-1.7.10"
-    runDir = "run"
+    runDir = "minecraft"
 }
 
 compileJava {
