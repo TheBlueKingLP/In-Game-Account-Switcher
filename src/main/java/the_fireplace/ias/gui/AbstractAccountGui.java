@@ -17,13 +17,15 @@ import the_fireplace.iasencrypt.EncryptionTools;
  */
 public abstract class AbstractAccountGui extends GuiScreen
 {
+	public final GuiScreen prev;
 	private final String actionString;
 	private GuiTextField username;
 	private GuiTextField password;
 	private GuiButton complete;
 	protected boolean hasUserChanged = false;
 
-	public AbstractAccountGui(String actionString) {
+	public AbstractAccountGui(GuiScreen prev, String actionString) {
+		this.prev = prev;
 		this.actionString = actionString;
 	}
 	
@@ -102,7 +104,7 @@ public abstract class AbstractAccountGui extends GuiScreen
 	}
 
 	private void escape(){
-		mc.displayGuiScreen(new GuiAccountSelector());
+		mc.displayGuiScreen(prev);
 	}
 
 	public String getUsername()

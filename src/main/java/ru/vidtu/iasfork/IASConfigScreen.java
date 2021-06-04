@@ -10,7 +10,7 @@ import the_fireplace.ias.config.ConfigValues;
 
 public class IASConfigScreen extends GuiScreen {
 	public final GuiScreen prev;
-	public GuiCheckBox caseS, relog;
+	public GuiCheckBox caseS, relog, mpscreen;
 	public GuiTextField textX, textY;
 	public IASConfigScreen(GuiScreen prev) {
 		this.prev = prev;
@@ -22,6 +22,7 @@ public class IASConfigScreen extends GuiScreen {
 		addButton(relog = new GuiCheckBox(2, width / 2 - fontRenderer.getStringWidth(I18n.format(ConfigValues.ENABLERELOG_NAME)) / 2 - 7, 60, I18n.format(ConfigValues.ENABLERELOG_NAME), ConfigValues.ENABLERELOG));
 		children.add(textX = new GuiTextField(-1, fontRenderer, width / 2 - 100, 90, 98, 20));
 		children.add(textY = new GuiTextField(-2, fontRenderer, width / 2 + 2, 90, 98, 20));
+		addButton(mpscreen = new GuiCheckBox(-3, width / 2 - fontRenderer.getStringWidth(I18n.format(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME)) / 2 - 10, 112, I18n.format(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME), ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN));
 		addButton(new GuiButton(0, width / 2 - 75, height - 24, 150, 20, I18n.format("gui.done")) {
 			@Override
 			public void onClick(double mouseX, double mouseY) {
@@ -45,6 +46,7 @@ public class IASConfigScreen extends GuiScreen {
 		ConfigValues.ENABLERELOG = relog.isChecked();
 		ConfigValues.TEXT_X = textX.getText();
 		ConfigValues.TEXT_Y = textY.getText();
+		ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN = mpscreen.isChecked();
 		IAS.syncConfig(true);
 	}
 	

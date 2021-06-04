@@ -42,7 +42,14 @@ public class ClientEvents {
 				if(Config.getInstance() == null){
 					Config.load();
 				}
-				Minecraft.getInstance().displayGuiScreen(new GuiAccountSelector());
+				Minecraft.getInstance().displayGuiScreen(new GuiAccountSelector(event.getGui()));
+			}));
+		} else if (gui instanceof GuiMultiplayer && ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN) {
+			event.addButton(new GuiButtonWithImage(event.getGui().width / 2 + 4 + 76 + 79, event.getGui().height - 28, () -> {
+				if(Config.getInstance() == null){
+					Config.load();
+				}
+				Minecraft.getInstance().displayGuiScreen(new GuiAccountSelector(event.getGui()));
 			}));
 		}
 	}

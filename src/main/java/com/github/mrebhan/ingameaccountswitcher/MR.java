@@ -6,6 +6,7 @@ import com.github.mrebhan.ingameaccountswitcher.tools.Config;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
+import ru.vidtu.iasfork.msauth.MicrosoftAccount;
 
 /**
  * @author MRebhan
@@ -13,13 +14,18 @@ import net.minecraft.util.Session;
 public class MR {
 	public static void init(){
 		Config.load();
+		MicrosoftAccount.load(Minecraft.getInstance());
 	}
-	public static void setSession(Session s) throws Exception {
-		for (Field f : Minecraft.class.getDeclaredFields()) {
-			if (f.getType().equals(Session.class)) {
-				f.setAccessible(true);
-				f.set(Minecraft.getInstance(), s);
+	public static void setSession(Session s) {
+		try {
+			for (Field f : Minecraft.class.getDeclaredFields()) {
+				if (f.getType().equals(Session.class)) {
+					f.setAccessible(true);
+					f.set(Minecraft.getInstance(), s);
+				}
 			}
+		} catch (Throwable t) {
+			t.printStackTrace();
 		}
 	}
 }
