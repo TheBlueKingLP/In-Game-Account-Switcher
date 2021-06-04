@@ -38,6 +38,8 @@ public class ClientEvents {
 				textY = event.gui.height / 4 + 48 + 72 + 12 + 22;
 			}
 			event.buttonList.add(new GuiButtonWithImage(20, gui.width / 2 + 104, (gui.height / 4 + 48) + 72 + 12));
+		} else if (gui instanceof GuiMultiplayer && ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN) {
+			event.buttonList.add(new GuiButtonWithImage(203, event.gui.width / 2 + 4 + 76 + 79, event.gui.height - 28));
 		}
 	}
 	@SubscribeEvent
@@ -46,7 +48,13 @@ public class ClientEvents {
 			if(Config.getInstance() == null){
 				Config.load();
 			}
-			Minecraft.getMinecraft().displayGuiScreen(new GuiAccountSelector());
+			Minecraft.getMinecraft().displayGuiScreen(new GuiAccountSelector(event.gui));
+		}
+		if (event.gui instanceof GuiMultiplayer && event.button.id == 203) {
+			if(Config.getInstance() == null){
+				Config.load();
+			}
+			Minecraft.getMinecraft().displayGuiScreen(new GuiAccountSelector(event.gui));
 		}
 	}
 	@SubscribeEvent
