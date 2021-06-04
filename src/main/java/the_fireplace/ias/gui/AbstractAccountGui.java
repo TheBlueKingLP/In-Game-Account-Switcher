@@ -9,7 +9,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import the_fireplace.iasencrypt.EncryptionTools;
 
 /**
@@ -18,21 +18,21 @@ import the_fireplace.iasencrypt.EncryptionTools;
  */
 public abstract class AbstractAccountGui extends Screen
 {
-	private final String actionString;
+	public final Screen prev;
 	private TextFieldWidget username;
 	private TextFieldWidget password;
 	private Button complete;
 	protected boolean hasUserChanged = false;
 
-	public AbstractAccountGui(String actionString)
+	public AbstractAccountGui(Screen prev, String actionString)
 	{
-		super(new StringTextComponent(actionString));
-		this.actionString = actionString;
+		super(new TranslationTextComponent(actionString));
+		this.prev = prev;
 	}
 	
 	@Override
 	protected void init() {
-		addButton(complete = new Button(this.width / 2 - 152, this.height - 28, 150, 20, I18n.format(this.actionString), btn -> {
+		addButton(complete = new Button(this.width / 2 - 152, this.height - 28, 150, 20, this.title.getFormattedText(), btn -> {
 			complete();
 			escape();
 		}));
@@ -47,7 +47,7 @@ public abstract class AbstractAccountGui extends Screen
 	@Override
 	public void render(int mx, int my, float delta) {
 		renderBackground();
-		this.drawCenteredString(font, I18n.format(this.actionString), this.width / 2, 7, -1);
+		this.drawCenteredString(font, this.title.getFormattedText(), this.width / 2, 7, -1);
 		this.drawCenteredString(font, I18n.format("ias.username"), this.width / 2 - 130, 66, -1);
 		this.drawCenteredString(font, I18n.format("ias.password"), this.width / 2 - 130, 96, -1);
 		super.render(mx, my, delta);
@@ -85,7 +85,7 @@ public abstract class AbstractAccountGui extends Screen
 	}
 
 	private void escape(){
-		minecraft.displayGuiScreen(new GuiAccountSelector());
+		minecraft.displayGuiScreen(prev);
 	}
 
 	public String getUsername()

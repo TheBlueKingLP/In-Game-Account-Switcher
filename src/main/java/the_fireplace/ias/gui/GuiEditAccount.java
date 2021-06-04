@@ -3,6 +3,7 @@ package the_fireplace.ias.gui;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AccountData;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
 
+import net.minecraft.client.gui.screen.Screen;
 import the_fireplace.ias.account.ExtendedAccountData;
 import the_fireplace.ias.tools.JavaTools;
 import the_fireplace.iasencrypt.EncryptionTools;
@@ -15,8 +16,8 @@ public class GuiEditAccount extends AbstractAccountGui {
 	private final ExtendedAccountData data;
 	private final int selectedIndex;
 
-	public GuiEditAccount(int index){
-		super("ias.editaccount");
+	public GuiEditAccount(Screen prev, int index){
+		super(prev, "ias.editaccount");
 		this.selectedIndex=index;
 		AccountData data = AltDatabase.getInstance().getAlts().get(index);
 
