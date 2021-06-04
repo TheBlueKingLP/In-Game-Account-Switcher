@@ -1,6 +1,5 @@
 package the_fireplace.ias.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
@@ -27,9 +26,9 @@ public class GuiButtonWithImage extends ButtonWidget {
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			int k = getYImage(hovered);
-			GlStateManager.enableBlend();
-			GlStateManager.blendFuncSeparate(770, 771, 1, 0);
-			GlStateManager.blendFunc(770, 771);
+			RenderSystem.enableBlend();
+			RenderSystem.blendFuncSeparate(770, 771, 1, 0);
+			RenderSystem.blendFunc(770, 771);
 			drawTexture(ms, this.x, this.y, 0, k * 20, 20, 20);
 		}
 	}

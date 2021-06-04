@@ -8,7 +8,6 @@ import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
@@ -18,23 +17,22 @@ import the_fireplace.iasencrypt.EncryptionTools;
  * @author evilmidget38
  * @author The_Fireplace
  */
-public abstract class AbstractAccountGui extends Screen
-{
-	private final String actionString;
+public abstract class AbstractAccountGui extends Screen {
+	public final Screen prev;
 	private TextFieldWidget username;
 	private TextFieldWidget password;
 	private ButtonWidget complete;
 	protected boolean hasUserChanged = false;
 
-	public AbstractAccountGui(String actionString)
+	public AbstractAccountGui(Screen prev, String actionString)
 	{
-		super(new LiteralText(actionString));
-		this.actionString = actionString;
+		super(new TranslatableText(actionString));
+		this.prev = prev;
 	}
 	
 	@Override
 	protected void init() {
-		addButton(complete = new ButtonWidget(this.width / 2 - 152, this.height - 28, 150, 20, new TranslatableText(this.actionString), btn -> {
+		addButton(complete = new ButtonWidget(this.width / 2 - 152, this.height - 28, 150, 20, this.title, btn -> {
 			complete();
 			escape();
 		}));
@@ -49,9 +47,9 @@ public abstract class AbstractAccountGui extends Screen
 	@Override
 	public void render(MatrixStack ms, int mx, int my, float delta) {
 		renderBackground(ms);
-		drawCenteredString(ms, textRenderer, I18n.translate(this.actionString), this.width / 2, 7, -1);
-		drawCenteredString(ms, textRenderer, I18n.translate("ias.username"), this.width / 2 - 130, 66, -1);
-		drawCenteredString(ms, textRenderer, I18n.translate("ias.password"), this.width / 2 - 130, 96, -1);
+		drawCenteredText(ms, textRenderer, this.title, this.width / 2, 7, -1);
+		drawCenteredText(ms, textRenderer, new TranslatableText("ias.username"), this.width / 2 - 130, 66, -1);
+		drawCenteredText(ms, textRenderer, new TranslatableText("ias.password"), this.width / 2 - 130, 96, -1);
 		super.render(ms, mx, my, delta);
 	}
 	
@@ -87,7 +85,7 @@ public abstract class AbstractAccountGui extends Screen
 	}
 
 	private void escape(){
-		client.openScreen(new GuiAccountSelector());
+		client.openScreen(prev);
 	}
 
 	public String getUsername()

@@ -2,7 +2,6 @@ package the_fireplace.ias.gui;
 
 import java.util.ArrayList;
 
-import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.mrebhan.ingameaccountswitcher.tools.Config;
@@ -15,10 +14,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import ru.vidtu.iasfork.ListWidget;
+import ru.vidtu.iasfork.msauth.Account;
+import ru.vidtu.iasfork.msauth.MicrosoftAccount;
 import the_fireplace.ias.account.AlreadyLoggedInException;
 import the_fireplace.ias.account.ExtendedAccountData;
 import the_fireplace.ias.config.ConfigValues;
@@ -31,10 +33,11 @@ import the_fireplace.iasencrypt.EncryptionTools;
  * @author The_Fireplace
  */
 public class GuiAccountSelector extends Screen {
+	public final Screen prev;
 	private int selectedAccountIndex = 0;
 	private int prevIndex = 0;
 	private Throwable loginfailed;
-	private ArrayList<ExtendedAccountData> queriedaccounts = convertData();
+	private ArrayList<Account> queriedaccounts = convertData();
 	private GuiAccountSelector.List accountsgui;
 	// Buttons that can be disabled need to be here
 	private ButtonWidget login;
@@ -46,10 +49,11 @@ public class GuiAccountSelector extends Screen {
 	private String prevQuery = "";
 	private TextFieldWidget search;
 	
-	public GuiAccountSelector() {
+	public GuiAccountSelector(Screen prev) {
 		super(new TranslatableText("ias.selectaccount"));
+		this.prev = prev;
 	}
-  
+
 	@Override
 	protected void init() {
 		accountsgui = new GuiAccountSelector.List(this.client);
@@ -67,7 +71,7 @@ public class GuiAccountSelector extends Screen {
 	}
 	
 	private void updateShownSkin() {
-		if (!queriedaccounts.isEmpty()) SkinTools.buildSkin(queriedaccounts.get(selectedAccountIndex).alias);
+		if (!queriedaccounts.isEmpty()) SkinTools.buildSkin(queriedaccounts.get(selectedAccountIndex).alias());
 	}
 
 	@Override
@@ -92,6 +96,7 @@ public class GuiAccountSelector extends Screen {
 	@Override
 	public void removed() {
 		Config.save();
+		MicrosoftAccount.save(client);
 	}
 	
 	@Override
@@ -106,15 +111,20 @@ public class GuiAccountSelector extends Screen {
 		if (!queriedaccounts.isEmpty()) {
 			SkinTools.javDrawSkin(ms, 8, height / 2 - 64 - 16, 64, 128);
 			Tools.drawBorderedRect(ms, width - 8 - 64, height / 2 - 64 - 16, width - 8, height / 2 + 64 - 16, 2, -5855578, -13421773);
-			if (queriedaccounts.get(selectedAccountIndex).premium != null) {
-				if (queriedaccounts.get(selectedAccountIndex).premium) drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.premium"), width - 8 - 61, height / 2 - 64 - 13, 6618980);
-				else drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.notpremium"), width - 8 - 61, height / 2 - 64 - 13, 16737380);
-			}
-			drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.timesused"), width - 8 - 61, height / 2 - 64 - 15 + 12, -1);
-			drawStringWithShadow(ms, textRenderer, String.valueOf(queriedaccounts.get(selectedAccountIndex).useCount), width - 8 - 61, height / 2 - 64 - 15 + 21, -1);
-			if (queriedaccounts.get(selectedAccountIndex).useCount > 0) {
-				drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.lastused"), width - 8 - 61, height / 2 - 64 - 15 + 30, -1);
-				drawStringWithShadow(ms, textRenderer, JavaTools.getFormattedDate(), width - 8 - 61, height / 2 - 64 - 15 + 39, -1);
+			if (queriedaccounts.get(selectedAccountIndex) instanceof ExtendedAccountData) {
+				ExtendedAccountData ead = (ExtendedAccountData) queriedaccounts.get(selectedAccountIndex);
+				if (ead.premium != null) {
+					if (ead.premium) drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.premium"), width - 8 - 61, height / 2 - 64 - 13, 6618980);
+					else drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.notpremium"), width - 8 - 61, height / 2 - 64 - 13, 16737380);
+				}
+				drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.timesused"), width - 8 - 61, height / 2 - 64 - 15 + 12, -1);
+				drawStringWithShadow(ms, textRenderer, String.valueOf(ead.useCount), width - 8 - 61, height / 2 - 64 - 15 + 21, -1);
+				if (ead.useCount > 0) {
+					drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.lastused"), width - 8 - 61, height / 2 - 64 - 15 + 30, -1);
+					drawStringWithShadow(ms, textRenderer, JavaTools.getFormattedDate(), width - 8 - 61, height / 2 - 64 - 15 + 39, -1);
+				}
+			} else {
+				drawTextWithShadow(ms, textRenderer, new TranslatableText("ias.premium"), width - 8 - 61, height / 2 - 64 - 13, 6618980);
 			}
 		}
 	}
@@ -124,6 +134,7 @@ public class GuiAccountSelector extends Screen {
 	 */
 	private void reloadSkins() {
 		Config.save();
+		MicrosoftAccount.save(client);
 		SkinTools.cacheSkins(true);
 		updateShownSkin();
 	}
@@ -132,7 +143,7 @@ public class GuiAccountSelector extends Screen {
 	 * Leave the gui
 	 */
 	private void escape() {
-		client.openScreen(null);
+		client.openScreen(prev);
 	}
 
 	/**
@@ -140,6 +151,7 @@ public class GuiAccountSelector extends Screen {
 	 */
 	private void delete() {
 		AltDatabase.getInstance().getAlts().remove(getCurrentAsEditable());
+		if (this.queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount) MicrosoftAccount.msaccounts.remove(this.queriedaccounts.get(selectedAccountIndex));
 		if (selectedAccountIndex > 0) selectedAccountIndex--;
 		updateQueried();
 		updateButtons();
@@ -149,7 +161,7 @@ public class GuiAccountSelector extends Screen {
 	 * Add an account
 	 */
 	private void add() {
-		client.openScreen(new GuiAddAccount());
+		client.openScreen(new GuiAddAccount(this));
 	}
 
 	/**
@@ -158,13 +170,14 @@ public class GuiAccountSelector extends Screen {
 	 * @param selected The index of the account to log in to
 	 */
 	private void logino(int selected) {
-		ExtendedAccountData data = queriedaccounts.get(selected);
-		AltManager.getInstance().setUserOffline(data.alias);
+		Account data = queriedaccounts.get(selected);
+		AltManager.getInstance().setUserOffline(data.alias());
 		loginfailed = null;
-		client.openScreen(null);
 		ExtendedAccountData current = getCurrentAsEditable();
-		current.useCount++;
-		current.lastused = JavaTools.getDate();
+		if (current != null) {
+			current.useCount++;
+			current.lastused = JavaTools.getDate();
+		}
 	}
 
 	/**
@@ -173,14 +186,15 @@ public class GuiAccountSelector extends Screen {
 	 * @param selected The index of the account to log in to
 	 */
 	private void login(int selected) {
-		ExtendedAccountData data = queriedaccounts.get(selected);
-		loginfailed = AltManager.getInstance().setUser(data.user, data.pass);
+		Account data = queriedaccounts.get(selected);
+		loginfailed = data.login();
 		if (loginfailed == null) {
-			client.openScreen(null);
 			ExtendedAccountData current = getCurrentAsEditable();
-			current.premium = true;
-			current.useCount++;
-			current.lastused = JavaTools.getDate();
+			if (current != null) {
+				current.premium = true;
+				current.useCount++;
+				current.lastused = JavaTools.getDate();
+			}
 		} else if (loginfailed instanceof AlreadyLoggedInException) {
 			getCurrentAsEditable().lastused = JavaTools.getDate();
 		} else if (HttpTools.ping("http://minecraft.net")) {
@@ -192,17 +206,17 @@ public class GuiAccountSelector extends Screen {
 	 * Edits the current account's information
 	 */
 	private void edit() {
-		client.openScreen(new GuiEditAccount(selectedAccountIndex));
+		client.openScreen(new GuiEditAccount(this, selectedAccountIndex));
 	}
 
 	private void updateQueried() {
 		queriedaccounts = convertData();
 		if (!search.getText().trim().isEmpty()) {
 			for (int i = 0; i < queriedaccounts.size(); i++) {
-				if (!queriedaccounts.get(i).alias.contains(search.getText()) && ConfigValues.CASESENSITIVE) {
+				if (!queriedaccounts.get(i).alias().contains(search.getText()) && ConfigValues.CASESENSITIVE) {
 					queriedaccounts.remove(i);
 					i--;
-				} else if (!queriedaccounts.get(i).alias.toLowerCase().contains(search.getText().toLowerCase())
+				} else if (!queriedaccounts.get(i).alias().toLowerCase().contains(search.getText().toLowerCase())
 						&& !ConfigValues.CASESENSITIVE) {
 					queriedaccounts.remove(i);
 					i--;
@@ -260,10 +274,10 @@ public class GuiAccountSelector extends Screen {
 		return super.charTyped(charT, mods);
 	}
 
-	private ArrayList<ExtendedAccountData> convertData() {
+	private ArrayList<Account> convertData() {
 		@SuppressWarnings("unchecked")
 		ArrayList<AccountData> tmp = (ArrayList<AccountData>) AltDatabase.getInstance().getAlts().clone();
-		ArrayList<ExtendedAccountData> converted = new ArrayList<>();
+		ArrayList<Account> converted = new ArrayList<>();
 		int index = 0;
 		for (AccountData data : tmp) {
 			if (data instanceof ExtendedAccountData) {
@@ -276,6 +290,7 @@ public class GuiAccountSelector extends Screen {
 			}
 			index++;
 		}
+		converted.addAll(MicrosoftAccount.msaccounts);
 		return converted;
 	}
 
@@ -286,7 +301,7 @@ public class GuiAccountSelector extends Screen {
 	private ExtendedAccountData getCurrentAsEditable() {
 		for (AccountData dat : getAccountList()) {
 			if (dat instanceof ExtendedAccountData) {
-				if (dat.equals(queriedaccounts.get(selectedAccountIndex))) {
+				if (((ExtendedAccountData)dat).equals(queriedaccounts.get(selectedAccountIndex))) {
 					return (ExtendedAccountData) dat;
 				}
 			}
@@ -295,11 +310,11 @@ public class GuiAccountSelector extends Screen {
 	}
 
 	private void updateButtons() {
-		login.active = !queriedaccounts.isEmpty() && !EncryptionTools.decode(queriedaccounts.get(selectedAccountIndex).pass).equals("");
+		login.active = !queriedaccounts.isEmpty() && (queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount || !EncryptionTools.decode(((ExtendedAccountData)queriedaccounts.get(selectedAccountIndex)).pass).equals(""));
 		loginoffline.active = !queriedaccounts.isEmpty();
 		delete.active = !queriedaccounts.isEmpty();
-		edit.active = !queriedaccounts.isEmpty();
-		reloadskins.active = !AltDatabase.getInstance().getAlts().isEmpty();
+		edit.active = !queriedaccounts.isEmpty() && queriedaccounts.get(selectedAccountIndex) instanceof ExtendedAccountData;
+		reloadskins.active = !queriedaccounts.isEmpty();
 	}
 
 	class List extends ListWidget {
@@ -324,16 +339,16 @@ public class GuiAccountSelector extends Screen {
 
 		@Override
 		protected void renderItem(MatrixStack ms, int i1, int i2, int i3, int i4, int i5, int i6, float i7) {
-			ExtendedAccountData data = queriedaccounts.get(i1);
-			String s = data.alias;
-			if (StringUtils.isEmpty(s)) {
-				s = I18n.translate("ias.alt") + " " + (i1 + 1);
+			Account data = queriedaccounts.get(i1);
+			Text s = new LiteralText(data.alias());
+			if (s.asString().isEmpty()) {
+				s = new TranslatableText("ias.alt").append(" ").append(String.valueOf(i1 + 1));
 			}
 			int color = 16777215;
-			if (MinecraftClient.getInstance().getSession().getUsername().equals(data.alias)) {
+			if (MinecraftClient.getInstance().getSession().getUsername().equals(data.alias())) {
 				color = 0x00FF00;
 			}
-			drawStringWithShadow(ms, textRenderer, s, i2 + 2, i3 + 1, color);
+			drawTextWithShadow(ms, textRenderer, s, i2 + 2, i3 + 1, color);
 		}
 		
 		@Override

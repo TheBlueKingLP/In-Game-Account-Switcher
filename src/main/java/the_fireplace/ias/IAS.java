@@ -21,6 +21,7 @@ public class IAS implements ClientModInitializer {
 		config.setProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG));
 		config.setProperty(ConfigValues.TEXT_POS_NAME + ".x", ConfigValues.TEXT_X);
 		config.setProperty(ConfigValues.TEXT_POS_NAME + ".y", ConfigValues.TEXT_Y);
+		config.setProperty(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME, String.valueOf(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN));
 		if (save) {
 			try {
 				MinecraftClient mc = MinecraftClient.getInstance();
@@ -49,6 +50,7 @@ public class IAS implements ClientModInitializer {
 			ConfigValues.ENABLERELOG = Boolean.parseBoolean(config.getProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG_DEFAULT)));
 			ConfigValues.TEXT_X = config.getProperty(ConfigValues.TEXT_POS_NAME + ".x", "");
 			ConfigValues.TEXT_Y = config.getProperty(ConfigValues.TEXT_POS_NAME + ".y", "");
+			ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN = Boolean.parseBoolean(config.getProperty(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME, String.valueOf(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_DEFAULT)));
 		} catch (Throwable t) {
 			System.err.println("Unable to load IAS config");
 			t.printStackTrace();

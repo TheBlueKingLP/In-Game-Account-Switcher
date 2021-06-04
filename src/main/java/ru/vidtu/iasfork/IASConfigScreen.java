@@ -12,7 +12,7 @@ import the_fireplace.ias.config.ConfigValues;
 
 public class IASConfigScreen extends Screen {
 	public final Screen prev;
-	public CheckboxWidget caseS, relog;
+	public CheckboxWidget caseS, relog, mpscreen;
 	public TextFieldWidget textX, textY;
 	public IASConfigScreen(Screen prev) {
 		super(new LiteralText("ias.properties"));
@@ -23,6 +23,7 @@ public class IASConfigScreen extends Screen {
 	protected void init() {
 		addButton(caseS = new CheckboxWidget(width / 2 - textRenderer.getWidth(new TranslatableText(ConfigValues.CASESENSITIVE_NAME)) / 2 - 24, 40, 20, 20, new TranslatableText(ConfigValues.CASESENSITIVE_NAME), ConfigValues.CASESENSITIVE));
 		addButton(relog = new CheckboxWidget(width / 2 - textRenderer.getWidth(new TranslatableText(ConfigValues.ENABLERELOG_NAME)) / 2 - 24, 60, 20, 20, new TranslatableText(ConfigValues.ENABLERELOG_NAME), ConfigValues.ENABLERELOG));
+		addButton(mpscreen = new CheckboxWidget(width / 2 - textRenderer.getWidth(new TranslatableText(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME)) / 2 - 24, 112, 20, 20, new TranslatableText(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME), ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN));
 		addButton(textX = new TextFieldWidget(textRenderer, width / 2 - 100, 90, 98, 20, new LiteralText("X")));
 		addButton(textY = new TextFieldWidget(textRenderer, width / 2 + 2, 90, 98, 20, new LiteralText("Y")));
 		addButton(new ButtonWidget(width / 2 - 75, height - 24, 150, 20, new TranslatableText("gui.done"), btn -> {
@@ -45,6 +46,7 @@ public class IASConfigScreen extends Screen {
 		ConfigValues.ENABLERELOG = relog.isChecked();
 		ConfigValues.TEXT_X = textX.getText();
 		ConfigValues.TEXT_Y = textY.getText();
+		ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN = mpscreen.isChecked();
 		IAS.syncConfig(true);
 	}
 	

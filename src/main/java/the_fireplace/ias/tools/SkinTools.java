@@ -12,6 +12,8 @@ import java.util.Base64;
 
 import javax.imageio.ImageIO;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AccountData;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
 import com.google.gson.Gson;
@@ -24,6 +26,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import ru.vidtu.iasfork.msauth.MicrosoftAccount;
 
 /**
  * Tools that have to do with Skins
@@ -120,6 +123,14 @@ public class SkinTools {
 			File file = new File(cachedir, data.alias + ".png");
 			if (force || !file.exists()) {
 				loadFromMojang(mc, data.alias, file);
+			}
+		}
+		for (int i = 0; i < MicrosoftAccount.msaccounts.size(); i++) {
+			MicrosoftAccount data = MicrosoftAccount.msaccounts.get(i);
+			GLFW.glfwSetWindowTitle(mc.getWindow().getHandle(), "Minecraft* " + SharedConstants.getGameVersion().getName() + " (IAS: Updating skin " + data.alias() + "...)");
+			File file = new File(cachedir, data.alias() + ".png");
+			if (force || !file.exists()) {
+				loadFromMojang(mc, data.alias(), file);
 			}
 		}
 		mc.updateWindowTitle();

@@ -49,7 +49,7 @@ public class TitleScreenMixin extends Screen {
 			if (Config.getInstance() == null) {
 				Config.load();
 			}
-			client.openScreen(new GuiAccountSelector());
+			client.openScreen(new GuiAccountSelector(this));
 		}));
 	}
 
