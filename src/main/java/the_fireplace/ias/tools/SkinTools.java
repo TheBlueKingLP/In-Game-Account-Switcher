@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import ru.vidtu.iasfork.msauth.MicrosoftAccount;
 
 import javax.imageio.ImageIO;
 
@@ -116,6 +117,14 @@ public class SkinTools {
 			File file = new File(cachedir, data.alias + ".png");
 			if (force || !file.exists()) {
 				loadFromMojang(mc, data.alias, file);
+			}
+		}
+		for (int i = 0; i < MicrosoftAccount.msaccounts.size(); i++) {
+			MicrosoftAccount data = MicrosoftAccount.msaccounts.get(i);
+			Display.setTitle("Minecraft 1.12.2 (IAS: Updating skin " + data.alias() + "...)");
+			File file = new File(cachedir, data.alias() + ".png");
+			if (force || !file.exists()) {
+				loadFromMojang(mc, data.alias(), file);
 			}
 		}
 		Display.setTitle("Minecraft 1.12.2");
