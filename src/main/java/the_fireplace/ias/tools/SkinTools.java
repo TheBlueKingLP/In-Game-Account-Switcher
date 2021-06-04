@@ -25,6 +25,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
+import ru.vidtu.iasfork.msauth.MicrosoftAccount;
 
 /**
  * Tools that have to do with Skins
@@ -121,6 +122,14 @@ public class SkinTools {
 			File file = new File(cachedir, data.alias + ".png");
 			if (force || !file.exists()) {
 				loadFromMojang(mc, data.alias, file);
+			}
+		}
+		for (int i = 0; i < MicrosoftAccount.msaccounts.size(); i++) {
+			MicrosoftAccount data = MicrosoftAccount.msaccounts.get(i);
+			GLFW.glfwSetWindowTitle(mc.window.getHandle(), "Minecraft " + SharedConstants.getGameVersion().getName() + " (IAS: Updating skin " + data.alias() + "...)");
+			File file = new File(cachedir, data.alias() + ".png");
+			if (force || !file.exists()) {
+				loadFromMojang(mc, data.alias(), file);
 			}
 		}
 		GLFW.glfwSetWindowTitle(mc.window.getHandle(), "Minecraft " + SharedConstants.getGameVersion().getName());

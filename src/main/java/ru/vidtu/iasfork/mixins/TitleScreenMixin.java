@@ -47,7 +47,7 @@ public class TitleScreenMixin extends Screen {
 			if (Config.getInstance() == null) {
 				Config.load();
 			}
-			minecraft.openScreen(new GuiAccountSelector());
+			minecraft.openScreen(new GuiAccountSelector(this));
 		}));
 	}
 
