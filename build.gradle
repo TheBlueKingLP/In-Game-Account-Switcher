@@ -8,7 +8,7 @@ buildscript {
         }
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://maven.minecraftforge.net/"
         }
     }
     dependencies {
@@ -17,7 +17,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = '7.1.0-pre2'
+version = '7.1.0-pre3'
 archivesBaseName = 'InGameAccountSwitcher-Forge-1.8.9'
 
 minecraft {
