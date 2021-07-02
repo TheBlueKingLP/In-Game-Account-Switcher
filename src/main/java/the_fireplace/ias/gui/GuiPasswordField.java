@@ -1,6 +1,7 @@
 package the_fireplace.ias.gui;
 
-import joptsimple.internal.Strings;
+import org.apache.commons.lang3.StringUtils;
+
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -10,7 +11,7 @@ public class GuiPasswordField extends TextFieldWidget
 	public GuiPasswordField(TextRenderer fontrendererObj, int x, int y, int par5Width, int par6Height, String s)
 	{
 		super(fontrendererObj, x, y, par5Width, par6Height, s);
-		setRenderTextProvider((t, u) -> Strings.repeat('*', t.length()));
+		setRenderTextProvider((t, u) -> StringUtils.repeat('*', t.length()));
 	}
 	
 	@Override

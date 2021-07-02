@@ -56,6 +56,7 @@ public class GuiAccountSelector extends Screen {
 
 	@Override
 	protected void init() {
+		queriedaccounts = convertData();
 		accountsgui = new GuiAccountSelector.List(this.minecraft);
 	    children.add(accountsgui);
 		addButton(reloadskins = new ButtonWidget(2, 2, 120, 20, I18n.translate("ias.reloadskins"), btn -> reloadSkins())); //8
