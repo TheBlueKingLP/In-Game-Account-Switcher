@@ -55,6 +55,7 @@ public class GuiAccountSelector extends GuiScreen {
 
 	@Override
 	public void initGui() {
+		queriedaccounts = convertData();
 		Keyboard.enableRepeatEvents(true);
 		accountsgui = new GuiAccountSelector.List(this.mc);
 		accountsgui.registerScrollButtons(5, 6);
