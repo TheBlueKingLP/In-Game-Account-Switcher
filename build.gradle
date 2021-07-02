@@ -19,13 +19,17 @@ buildscript {
 
 apply plugin: 'forge'
 apply plugin: 'java'
-version = "7.1.0-pre2"
+apply plugin: 'eclipse'
+version = "7.1.0-pre3"
 archivesBaseName = "InGameAccountSwitcher-Forge-1.7.10"
 
 minecraft {
     version = "1.7.10-10.13.4.1558-1.7.10"
     runDir = "minecraft"
 }
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 compileJava {
     sourceCompatibility = '1.8'

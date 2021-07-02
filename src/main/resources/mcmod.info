@@ -3,7 +3,7 @@
   "modid": "ias",
   "name": "In-Game Account Switcher",
   "description": "Allows you to change which account you are signed in to in-game without restarting Minecraft.",
-  "version": "7.1.0-pre2",
+  "version": "7.1.0-pre3",
   "mcversion": "1.8.9",
   "updateUrl": "https://raw.githubusercontent.com/VidTuGit/In-Game-Account-Switcher/master/updater-forge.json",
   "url": "https://www.curseforge.com/minecraft/mc-mods/in-game-account-switcher",
