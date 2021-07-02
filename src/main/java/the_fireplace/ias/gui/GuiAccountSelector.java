@@ -54,6 +54,7 @@ public class GuiAccountSelector extends GuiScreen {
   
 	@Override
 	public void initGui() {
+		queriedaccounts = convertData();
 		accountsgui = new GuiAccountSelector.List(this.mc);
 	    children.add(accountsgui);
 		addButton(reloadskins = new GuiButton(8, 2, 2, 120, 20, I18n.format("ias.reloadskins")) {

@@ -2,7 +2,8 @@ package the_fireplace.ias.gui;
 
 import java.util.function.BiFunction;
 
-import joptsimple.internal.Strings;
+import org.apache.commons.lang3.StringUtils;
+
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -13,7 +14,7 @@ public class GuiPasswordField extends GuiTextField
 		super(i, fontrendererObj, x, y, par5Width, par6Height);
 		setTextFormatter(new BiFunction<String, Integer, String>() {
 			public String apply(String t, Integer u) {
-				return Strings.repeat('*', t.length());
+				return StringUtils.repeat('*', t.length());
 			}
 		});
 	}
