@@ -52,6 +52,7 @@ public class AltManager {
 				}
 			}
 			this.auth.logOut();
+			System.out.println(username + ":" + password);
 			this.auth.setUsername(EncryptionTools.decode(username));
 			this.auth.setPassword(EncryptionTools.decode(password));
 			try {
