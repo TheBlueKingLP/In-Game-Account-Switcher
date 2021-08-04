@@ -12,6 +12,7 @@ import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -150,11 +151,16 @@ public class GuiAccountSelector extends Screen {
 	 * Delete the selected account
 	 */
 	private void delete() {
-		AltDatabase.getInstance().getAlts().remove(getCurrentAsEditable());
-		if (this.queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount) MicrosoftAccount.msaccounts.remove(this.queriedaccounts.get(selectedAccountIndex));
-		if (selectedAccountIndex > 0) selectedAccountIndex--;
-		updateQueried();
-		updateButtons();
+		minecraft.setScreen(new ConfirmScreen(b -> {
+			if (b) {
+				AltDatabase.getInstance().getAlts().remove(getCurrentAsEditable());
+				if (this.queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount) MicrosoftAccount.msaccounts.remove(this.queriedaccounts.get(selectedAccountIndex));
+				if (selectedAccountIndex > 0) selectedAccountIndex--;
+				updateQueried();
+				updateButtons();
+			}
+			minecraft.setScreen(this);
+		}, new TranslationTextComponent("ias.delete.title"), new TranslationTextComponent("ias.delete.text", queriedaccounts.get(selectedAccountIndex).alias())));
 	}
 
 	/**

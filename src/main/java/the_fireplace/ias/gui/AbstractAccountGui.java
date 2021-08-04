@@ -21,7 +21,6 @@ import the_fireplace.iasencrypt.EncryptionTools;
 public abstract class AbstractAccountGui extends Screen
 {
 	public final Screen prev;
-	private final ITextComponent actionString;
 	private TextFieldWidget username;
 	private TextFieldWidget password;
 	private Button complete;
@@ -30,13 +29,12 @@ public abstract class AbstractAccountGui extends Screen
 	public AbstractAccountGui(Screen prev, ITextComponent actionString)
 	{
 		super(actionString);
-		this.actionString = actionString;
 		this.prev = prev;
 	}
 	
 	@Override
 	protected void init() {
-		addButton(complete = new Button(this.width / 2 - 152, this.height - 28, 150, 20, this.actionString, btn -> {
+		addButton(complete = new Button(this.width / 2 - 152, this.height - 28, 150, 20, this.title, btn -> {
 			complete();
 			escape();
 		}));
@@ -51,7 +49,7 @@ public abstract class AbstractAccountGui extends Screen
 	@Override
 	public void render(MatrixStack ms, int mx, int my, float delta) {
 		renderBackground(ms);
-		drawCenteredString(ms, font, this.actionString, this.width / 2, 7, -1);
+		drawCenteredString(ms, font, this.title, this.width / 2, 7, -1);
 		drawCenteredString(ms, font, new TranslationTextComponent("ias.username"), this.width / 2 - 130, 66, -1);
 		drawCenteredString(ms, font, new TranslationTextComponent("ias.password"), this.width / 2 - 130, 96, -1);
 		super.render(ms, mx, my, delta);
