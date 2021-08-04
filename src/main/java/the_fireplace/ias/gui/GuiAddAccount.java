@@ -17,7 +17,7 @@ public class GuiAddAccount extends AbstractAccountGui {
 
 	public GuiAddAccount(Screen prev)
 	{
-		super(prev, "ias.addaccount");
+		super(prev, new TranslatableText("ias.addaccount"));
 	}
 	
 	@Override

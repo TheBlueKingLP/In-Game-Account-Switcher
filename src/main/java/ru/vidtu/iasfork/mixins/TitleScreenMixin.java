@@ -55,6 +55,6 @@ public class TitleScreenMixin extends Screen {
 
 	@Inject(method = "render", at = @At("TAIL"))
 	public void onRender(MatrixStack ms, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		drawCenteredString(ms, textRenderer, I18n.translate("ias.loggedinas") + " " + client.getSession().getUsername() + ".", textX, textY, 0xFFCC8888);
+		drawCenteredText(ms, textRenderer, I18n.translate("ias.loggedinas") + " " + client.getSession().getUsername() + ".", textX, textY, 0xFFCC8888);
 	}
 }

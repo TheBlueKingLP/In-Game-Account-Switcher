@@ -11,6 +11,7 @@ import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltManager;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -106,7 +107,7 @@ public class GuiAccountSelector extends Screen {
 		accountsgui.render(ms, mx, my, delta);
 		drawCenteredText(ms, textRenderer, this.title, this.width / 2, 4, -1);
 		if (loginfailed != null) {
-			drawCenteredString(ms, textRenderer, loginfailed.getLocalizedMessage(), this.width / 2, this.height - 62, 16737380);
+			drawCenteredText(ms, textRenderer, loginfailed.getLocalizedMessage(), this.width / 2, this.height - 62, 16737380);
 		}
 		super.render(ms, mx, my, delta);
 		if (!queriedaccounts.isEmpty()) {
@@ -151,11 +152,16 @@ public class GuiAccountSelector extends Screen {
 	 * Delete the selected account
 	 */
 	private void delete() {
-		AltDatabase.getInstance().getAlts().remove(getCurrentAsEditable());
-		if (this.queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount) MicrosoftAccount.msaccounts.remove(this.queriedaccounts.get(selectedAccountIndex));
-		if (selectedAccountIndex > 0) selectedAccountIndex--;
-		updateQueried();
-		updateButtons();
+		client.openScreen(new ConfirmScreen(b -> {
+			if (b) {
+				AltDatabase.getInstance().getAlts().remove(getCurrentAsEditable());
+				if (this.queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount) MicrosoftAccount.msaccounts.remove(this.queriedaccounts.get(selectedAccountIndex));
+				if (selectedAccountIndex > 0) selectedAccountIndex--;
+				updateQueried();
+				updateButtons();
+			}
+			client.openScreen(this);
+		}, new TranslatableText("ias.delete.title"), new TranslatableText("ias.delete.text", queriedaccounts.get(selectedAccountIndex).alias())));
 	}
 
 	/**

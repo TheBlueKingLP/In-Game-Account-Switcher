@@ -125,7 +125,7 @@ public class MSAuthScreen extends Screen implements MSAuthHandler {
 				mc.openScreen(new GuiAccountSelector(prev instanceof AbstractAccountGui?(((AbstractAccountGui)prev).prev instanceof GuiAccountSelector?((GuiAccountSelector)((AbstractAccountGui)prev).prev).prev:((AbstractAccountGui)prev).prev):prev));
 			} else {
 				MR.setSession(new Session(name, uuid, token, "mojang"));
-				mc.openScreen(prev);
+				mc.openScreen(null);
 			}
 		});
 	}
