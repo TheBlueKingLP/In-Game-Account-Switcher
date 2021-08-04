@@ -9,7 +9,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import the_fireplace.iasencrypt.EncryptionTools;
 
 /**
@@ -18,21 +18,19 @@ import the_fireplace.iasencrypt.EncryptionTools;
  */
 public abstract class AbstractAccountGui extends Screen {
 	public final Screen prev;
-	private final String actionString;
 	private TextFieldWidget username;
 	private GuiPasswordField password;
 	private ButtonWidget complete;
 	protected boolean hasUserChanged = false;
 
-	public AbstractAccountGui(Screen prev, String actionString) {
-		super(new LiteralText(actionString));
+	public AbstractAccountGui(Screen prev, Text actionString) {
+		super(actionString);
 		this.prev = prev;
-		this.actionString = actionString;
 	}
 	
 	@Override
 	protected void init() {
-		addButton(complete = new ButtonWidget(this.width / 2 - 152, this.height - 28, 150, 20, I18n.translate(this.actionString), btn -> {
+		addButton(complete = new ButtonWidget(this.width / 2 - 152, this.height - 28, 150, 20, this.title.asFormattedString(), btn -> {
 			complete();
 			escape();
 		}));
@@ -47,7 +45,7 @@ public abstract class AbstractAccountGui extends Screen {
 	@Override
 	public void render(int mx, int my, float delta) {
 		renderBackground();
-		this.drawCenteredString(font, I18n.translate(this.actionString), this.width / 2, 7, -1);
+		this.drawCenteredString(font, this.title.asFormattedString(), this.width / 2, 7, -1);
 		this.drawCenteredString(font, I18n.translate("ias.username"), this.width / 2 - 130, 66, -1);
 		this.drawCenteredString(font, I18n.translate("ias.password"), this.width / 2 - 130, 96, -1);
 		super.render(mx, my, delta);

@@ -5,6 +5,7 @@ import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.text.TranslatableText;
 import ru.vidtu.iasfork.msauth.MSAuthScreen;
 import the_fireplace.ias.account.ExtendedAccountData;
 
@@ -17,7 +18,7 @@ public class GuiAddAccount extends AbstractAccountGui {
 
 	public GuiAddAccount(Screen prev)
 	{
-		super(prev, "ias.addaccount");
+		super(prev, new TranslatableText("ias.addaccount"));
 	}
 	
 	@Override
