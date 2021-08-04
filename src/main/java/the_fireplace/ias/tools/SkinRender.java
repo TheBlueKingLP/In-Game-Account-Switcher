@@ -1,14 +1,17 @@
 package the_fireplace.ias.tools;
 
-import net.minecraft.client.gui.Gui;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Takes care of loading and drawing images to the screen. Adapted from http://www.minecraftforge.net/forum/index.php?topic=11991.0
@@ -34,9 +37,11 @@ public class SkinRender
 	private boolean loadPreview()
 	{
 		try {
-			BufferedImage image = ImageIO.read(file);
-			previewTexture = new DynamicTexture(image);
-			resourceLocation = textureManager.getDynamicTextureLocation("ias", previewTexture);
+			FileInputStream fis = new FileInputStream(file);
+			NativeImage ni = NativeImage.read(fis);
+			fis.close();
+			previewTexture = new DynamicTexture(ni);
+			resourceLocation = textureManager.register("ias", previewTexture);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -44,7 +49,7 @@ public class SkinRender
 		}
 	}
 
-	public void drawImage(int xPos, int yPos, int width, int height)
+	public void drawImage(PoseStack ms, int xPos, int yPos, int width, int height)
 	{
 		if(previewTexture == null) {
 			boolean successful = loadPreview();
@@ -53,9 +58,8 @@ public class SkinRender
 				return;
 			}
 		}
-		previewTexture.updateDynamicTexture();
-
-		textureManager.bindTexture(resourceLocation);
-		Gui.drawModalRectWithCustomSizedTexture(xPos, yPos, 0, 0, width, height, 16*4, 32*4);
+		previewTexture.upload();
+		RenderSystem.setShaderTexture(0, resourceLocation);
+		Screen.blit(ms, xPos, yPos, 0, 0, width, height, 16*4, 32*4);
 	}
 }

@@ -1,22 +1,27 @@
 package the_fireplace.ias.gui;
 
+import java.util.ArrayList;
+
+import org.lwjgl.glfw.GLFW;
+
 import com.github.mrebhan.ingameaccountswitcher.tools.Config;
 import com.github.mrebhan.ingameaccountswitcher.tools.Tools;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AccountData;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
 import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltManager;
+import com.mojang.blaze3d.vertex.PoseStack;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiSlot;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.gui.GuiYesNo;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import ru.vidtu.iasfork.SlotGui;
 import ru.vidtu.iasfork.msauth.Account;
 import ru.vidtu.iasfork.msauth.MicrosoftAccount;
-
-import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.input.Keyboard;
 import the_fireplace.ias.account.AlreadyLoggedInException;
 import the_fireplace.ias.account.ExtendedAccountData;
 import the_fireplace.ias.config.ConfigValues;
@@ -24,153 +29,104 @@ import the_fireplace.ias.tools.HttpTools;
 import the_fireplace.ias.tools.JavaTools;
 import the_fireplace.ias.tools.SkinTools;
 import the_fireplace.iasencrypt.EncryptionTools;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
 /**
  * The GUI where you can log in to, add, and remove accounts
- * 
  * @author The_Fireplace
  */
-public class GuiAccountSelector extends GuiScreen {
-	public final GuiScreen prev;
+public class GuiAccountSelector extends Screen {
+	public Screen prev;
 	private int selectedAccountIndex = 0;
 	private int prevIndex = 0;
 	private Throwable loginfailed;
 	private ArrayList<Account> queriedaccounts = convertData();
 	private GuiAccountSelector.List accountsgui;
 	// Buttons that can be disabled need to be here
-	private GuiButton login;
-	private GuiButton loginoffline;
-	private GuiButton delete;
-	private GuiButton edit;
-	private GuiButton reloadskins;
+	private Button login;
+	private Button loginoffline;
+	private Button delete;
+	private Button edit;
+	private Button reloadskins;
 	// Search
-	private String query;
-	private GuiTextField search;
+	private String prevQuery = "";
+	private EditBox search;
 	
-	public GuiAccountSelector(GuiScreen prev) {
+	public GuiAccountSelector(Screen prev) {
+		super(new TranslatableComponent("ias.selectaccount"));
 		this.prev = prev;
 	}
-
+  
 	@Override
-	public void initGui() {
+	protected void init() {
 		queriedaccounts = convertData();
-		Keyboard.enableRepeatEvents(true);
-		accountsgui = new GuiAccountSelector.List(this.mc);
-		accountsgui.registerScrollButtons(5, 6);
-		query = I18n.format("ias.search");
-		this.buttonList.clear();
-		// Above Top Row
-		this.buttonList.add(reloadskins = new GuiButton(8, this.width / 2 - 154 - 10, this.height - 76 - 8, 120, 20, I18n.format("ias.reloadskins")));
-		// Top Row
-		this.buttonList.add(new GuiButton(0, this.width / 2 + 4 + 40, this.height - 52, 120, 20, I18n.format("ias.addaccount")));
-		this.buttonList.add(login = new GuiButton(1, this.width / 2 - 154 - 10, this.height - 52, 120, 20, I18n.format("ias.login")));
-		this.buttonList.add(edit = new GuiButton(7, this.width / 2 - 40, this.height - 52, 80, 20, I18n.format("ias.edit")));
-		// Bottom Row
-		this.buttonList.add(loginoffline = new GuiButton(2, this.width / 2 - 154 - 10, this.height - 28, 110, 20, I18n.format("ias.login") + " " + I18n.format("ias.offline")));
-		this.buttonList .add(new GuiButton(3, this.width / 2 + 4 + 50, this.height - 28, 110, 20, I18n.format("gui.cancel")));
-		this.buttonList.add(delete = new GuiButton(4, this.width / 2 - 50, this.height - 28, 100, 20, I18n.format("ias.delete")));
-		search = new GuiTextField(8, this.fontRenderer, this.width / 2 - 80, 14, 160, 16);
-		search.setText(query);
-		updateButtons();
-		if (!queriedaccounts.isEmpty()) SkinTools.buildSkin(queriedaccounts.get(selectedAccountIndex).alias());
+		accountsgui = new GuiAccountSelector.List(this.minecraft);
+	    addRenderableWidget(accountsgui);
+		addRenderableWidget(reloadskins = new Button(2, 2, 120, 20, new TranslatableComponent("ias.reloadskins"), btn -> reloadSkins())); //8
+		addRenderableWidget(new Button(this.width / 2 + 4 + 40, this.height - 52, 120, 20, new TranslatableComponent("ias.addaccount"), btn -> add())); //0
+		addRenderableWidget(login = new Button(this.width / 2 - 154 - 10, this.height - 52, 120, 20, new TranslatableComponent("ias.login"), btn -> login(selectedAccountIndex))); //1
+		addRenderableWidget(edit = new Button(this.width / 2 - 40, this.height - 52, 80, 20, new TranslatableComponent("ias.edit"), btn -> edit())); //7
+		addRenderableWidget(loginoffline = new Button(this.width / 2 - 154 - 10, this.height - 28, 110, 20, new TranslatableComponent("ias.login").append(" ").append(new TranslatableComponent("ias.offline")), btn -> logino(selectedAccountIndex))); //2
+		addRenderableWidget(new Button(this.width / 2 + 4 + 50, this.height - 28, 110, 20, new TranslatableComponent("gui.cancel"), btn -> escape())); //3
+		addRenderableWidget(delete = new Button(this.width / 2 - 50, this.height - 28, 100, 20, new TranslatableComponent("ias.delete"), btn -> delete())); //4
+		addRenderableWidget(search = new EditBox(this.font, this.width / 2 - 80, 14, 160, 16, new TranslatableComponent("ias.search")));
+	    updateButtons();
+	    updateShownSkin();
 	}
-
-	@Override
-	public void handleMouseInput() throws IOException {
-		super.handleMouseInput();
-		this.accountsgui.handleMouseInput();
-	}
-
-	@Override
-	public void updateScreen() {
-		this.search.updateCursorCounter();
-		updateText();
-		updateButtons();
-		if (!(prevIndex == selectedAccountIndex)) {
-			updateShownSkin();
-			prevIndex = selectedAccountIndex;
-		}
-	}
-
+	
 	private void updateShownSkin() {
 		if (!queriedaccounts.isEmpty()) SkinTools.buildSkin(queriedaccounts.get(selectedAccountIndex).alias());
 	}
 
 	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		super.mouseClicked(mouseX, mouseY, mouseButton);
-		boolean flag = search.isFocused();
-		this.search.mouseClicked(mouseX, mouseY, mouseButton);
-		if (!flag && search.isFocused()) {
-			query = "";
-			updateText();
+	public void tick() {
+		updateButtons();
+		if (prevIndex != selectedAccountIndex) {
+			prevIndex = selectedAccountIndex;
+			updateShownSkin();
+		}
+		if (!prevQuery.equals(search.getValue())) {
 			updateQueried();
+			prevQuery = search.getValue();
 		}
 	}
 
-	private void updateText() {
-		search.setText(query);
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+		accountsgui.mouseClicked(mouseX, mouseY, mouseButton);
+		return super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
 
 	@Override
-	public void onGuiClosed() {
-		Keyboard.enableRepeatEvents(false);
+	public void removed() {
 		Config.save();
-		MicrosoftAccount.save(mc);
+		MicrosoftAccount.save(minecraft);
 	}
-
+	
 	@Override
-	public void drawScreen(int par1, int par2, float par3) {
-		accountsgui.drawScreen(par1, par2, par3);
-		this.drawCenteredString(fontRenderer, I18n.format("ias.selectaccount"), this.width / 2, 4, -1);
+	public void render(PoseStack ms, int mx, int my, float delta) {
+		renderBackground(ms);
+		accountsgui.render(ms, mx, my, delta);
+		drawCenteredString(ms, font, this.title, this.width / 2, 4, -1);
 		if (loginfailed != null) {
-			this.drawCenteredString(fontRenderer, loginfailed.getLocalizedMessage(), this.width / 2, this.height - 62, 16737380);
+			drawCenteredString(ms, font, loginfailed.getLocalizedMessage(), this.width / 2, this.height - 62, 16737380);
 		}
-		search.drawTextBox();
+		super.render(ms, mx, my, delta);
 		if (!queriedaccounts.isEmpty()) {
-			SkinTools.javDrawSkin(8, height / 2 - 64 - 16, 64, 128);
-			Tools.drawBorderedRect(width - 8 - 64, height / 2 - 64 - 16, width - 8, height / 2 + 64 - 16, 2, -5855578, -13421773);
+			SkinTools.javDrawSkin(ms, 8, height / 2 - 64 - 16, 64, 128);
+			Tools.drawBorderedRect(ms, width - 8 - 64, height / 2 - 64 - 16, width - 8, height / 2 + 64 - 16, 2, -5855578, -13421773);
 			if (queriedaccounts.get(selectedAccountIndex) instanceof ExtendedAccountData) {
 				ExtendedAccountData ead = (ExtendedAccountData) queriedaccounts.get(selectedAccountIndex);
 				if (ead.premium != null) {
-					if (ead.premium) this.drawString(fontRenderer, I18n.format("ias.premium"), width - 8 - 61, height / 2 - 64 - 13, 6618980);
-					else this.drawString(fontRenderer, I18n.format("ias.notpremium"), width - 8 - 61, height / 2 - 64 - 13, 16737380);
+					if (ead.premium) drawString(ms, font, new TranslatableComponent("ias.premium"), width - 8 - 61, height / 2 - 64 - 13, 6618980);
+					else drawString(ms, font, new TranslatableComponent("ias.notpremium"), width - 8 - 61, height / 2 - 64 - 13, 16737380);
 				}
-				this.drawString(fontRenderer, I18n.format("ias.timesused"), width - 8 - 61, height / 2 - 64 - 15 + 12, -1);
-				this.drawString(fontRenderer, String.valueOf(ead.useCount), width - 8 - 61, height / 2 - 64 - 15 + 21, -1);
+				drawString(ms, font, new TranslatableComponent("ias.timesused"), width - 8 - 61, height / 2 - 64 - 15 + 12, -1);
+				drawString(ms, font, String.valueOf(ead.useCount), width - 8 - 61, height / 2 - 64 - 15 + 21, -1);
 				if (ead.useCount > 0) {
-					this.drawString(fontRenderer, I18n.format("ias.lastused"), width - 8 - 61, height / 2 - 64 - 15 + 30, -1);
-					this.drawString(fontRenderer, JavaTools.getFormattedDate(), width - 8 - 61, height / 2 - 64 - 15 + 39, -1);
+					drawString(ms, font, new TranslatableComponent("ias.lastused"), width - 8 - 61, height / 2 - 64 - 15 + 30, -1);
+					drawString(ms, font, JavaTools.getFormattedDate(), width - 8 - 61, height / 2 - 64 - 15 + 39, -1);
 				}
 			} else {
-				this.drawString(fontRenderer, I18n.format("ias.premium"), width - 8 - 61, height / 2 - 64 - 13, 6618980);
-			}
-		}
-		super.drawScreen(par1, par2, par3);
-	}
-
-	@Override
-	protected void actionPerformed(GuiButton button) {
-		if (button.enabled) {
-			if (button.id == 3) {
-				escape();
-			} else if (button.id == 0) {
-				add();
-			} else if (button.id == 4) {
-				delete();
-			} else if (button.id == 1) {
-				login(selectedAccountIndex);
-			} else if (button.id == 2) {
-				logino(selectedAccountIndex);
-			} else if (button.id == 7) {
-				edit();
-			} else if (button.id == 8) {
-				reloadSkins();
-			} else {
-				accountsgui.actionPerformed(button);
+				drawString(ms, font, new TranslatableComponent("ias.premium"), width - 8 - 61, height / 2 - 64 - 13, 6618980);
 			}
 		}
 	}
@@ -188,14 +144,14 @@ public class GuiAccountSelector extends GuiScreen {
 	 * Leave the gui
 	 */
 	private void escape() {
-		mc.displayGuiScreen(prev);
+		minecraft.setScreen(prev);
 	}
 
 	/**
 	 * Delete the selected account
 	 */
 	private void delete() {
-		mc.displayGuiScreen(new GuiYesNo((b, i) -> {
+		minecraft.setScreen(new ConfirmScreen(b -> {
 			if (b) {
 				AltDatabase.getInstance().getAlts().remove(getCurrentAsEditable());
 				if (this.queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount) MicrosoftAccount.msaccounts.remove(this.queriedaccounts.get(selectedAccountIndex));
@@ -203,15 +159,15 @@ public class GuiAccountSelector extends GuiScreen {
 				updateQueried();
 				updateButtons();
 			}
-			mc.displayGuiScreen(this);
-		}, I18n.format("ias.delete.title"), I18n.format("ias.delete.text", queriedaccounts.get(selectedAccountIndex).alias()), 0));
+			minecraft.setScreen(this);
+		}, new TranslatableComponent("ias.delete.title"), new TranslatableComponent("ias.delete.text", queriedaccounts.get(selectedAccountIndex).alias())));
 	}
 
 	/**
 	 * Add an account
 	 */
 	private void add() {
-		mc.displayGuiScreen(new GuiAddAccount(this));
+		minecraft.setScreen(new GuiAddAccount(this));
 	}
 
 	/**
@@ -223,6 +179,7 @@ public class GuiAccountSelector extends GuiScreen {
 		Account data = queriedaccounts.get(selected);
 		AltManager.getInstance().setUserOffline(data.alias());
 		loginfailed = null;
+		minecraft.setScreen(null);
 		ExtendedAccountData current = getCurrentAsEditable();
 		if (current != null) {
 			current.useCount++;
@@ -256,17 +213,17 @@ public class GuiAccountSelector extends GuiScreen {
 	 * Edits the current account's information
 	 */
 	private void edit() {
-		mc.displayGuiScreen(new GuiEditAccount(this, selectedAccountIndex));
+		minecraft.setScreen(new GuiEditAccount(this, selectedAccountIndex));
 	}
 
 	private void updateQueried() {
 		queriedaccounts = convertData();
-		if (!query.equals(I18n.format("ias.search")) && !query.equals("")) {
+		if (!search.getValue().trim().isEmpty()) {
 			for (int i = 0; i < queriedaccounts.size(); i++) {
-				if (!queriedaccounts.get(i).alias().contains(query) && ConfigValues.CASESENSITIVE) {
+				if (!queriedaccounts.get(i).alias().contains(search.getValue()) && ConfigValues.CASESENSITIVE) {
 					queriedaccounts.remove(i);
 					i--;
-				} else if (!queriedaccounts.get(i).alias().toLowerCase().contains(query.toLowerCase())
+				} else if (!queriedaccounts.get(i).alias().toLowerCase().contains(search.getValue().toLowerCase())
 						&& !ConfigValues.CASESENSITIVE) {
 					queriedaccounts.remove(i);
 					i--;
@@ -279,56 +236,49 @@ public class GuiAccountSelector extends GuiScreen {
 			}
 		}
 	}
-
+	
 	@Override
-	protected void keyTyped(char character, int keyIndex) {
-		if (keyIndex == Keyboard.KEY_UP && !queriedaccounts.isEmpty()) {
-			if (selectedAccountIndex > 0) {
-				selectedAccountIndex--;
-			}
-		} else if (keyIndex == Keyboard.KEY_DOWN && !queriedaccounts.isEmpty()) {
-			if (selectedAccountIndex < queriedaccounts.size() - 1) {
-				selectedAccountIndex++;
-			}
-		} else if (keyIndex == Keyboard.KEY_ESCAPE) {
+	public boolean keyPressed(int key, int oldkey, int mods) {
+		if (key == GLFW.GLFW_KEY_UP && !queriedaccounts.isEmpty()) {
+			if (selectedAccountIndex > 0) selectedAccountIndex--;
+		} else if (key == GLFW.GLFW_KEY_DOWN && !queriedaccounts.isEmpty()) {
+			if (selectedAccountIndex < queriedaccounts.size() - 1) selectedAccountIndex++;
+		} else if (key == GLFW.GLFW_KEY_ESCAPE) {
 			escape();
-		} else if (keyIndex == Keyboard.KEY_DELETE && delete.enabled) {
+		} else if (key == GLFW.GLFW_KEY_DELETE && delete.active) {
 			delete();
-		} else if (character == '+') {
-			add();
-		} else if (character == '/' && edit.enabled) {
-			edit();
-		} else if (!search.isFocused() && keyIndex == Keyboard.KEY_R) {
-			reloadSkins();
-		} else if (keyIndex == Keyboard.KEY_RETURN && !search.isFocused() && (login.enabled || loginoffline.enabled)) {
-			if ((Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
-					&& loginoffline.enabled) {
+		} else if (key == GLFW.GLFW_KEY_ENTER && !search.isFocused() && (login.active || loginoffline.active)) {
+			if (Screen.hasShiftDown() && loginoffline.active) {
 				logino(selectedAccountIndex);
 			} else {
-				if (login.enabled)
-					login(selectedAccountIndex);
+				if (login.active) login(selectedAccountIndex);
 			}
-		} else if (keyIndex == Keyboard.KEY_BACK) {
-			if (search.isFocused() && query.length() > 0) {
-				query = query.substring(0, query.length() - 1);
-				updateText();
-				updateQueried();
-			}
-		} else if (keyIndex == Keyboard.KEY_F5) {
+		} else if (key == GLFW.GLFW_KEY_F5) {
 			reloadSkins();
-		} else if (character != 0) {
-			if (search.isFocused()) {
-				if (keyIndex == Keyboard.KEY_RETURN) {
-					search.setFocused(false);
-					updateText();
-					updateQueried();
-					return;
-				}
-				query += character;
-				updateText();
-				updateQueried();
+		} else if (search.isFocused()) {
+			if (key == GLFW.GLFW_KEY_ENTER) {
+				search.setFocus(false);
+				return true;
 			}
 		}
+		return super.keyPressed(key, oldkey, mods);
+	}
+	
+	@Override
+	public boolean shouldCloseOnEsc() {
+		return false;
+	}
+	
+	@Override
+	public boolean charTyped(char charT, int mods) {
+		if (charT == '+') {
+			add();
+		} else if (charT == '/' && edit.active) {
+			edit();
+		} else if (!search.isFocused() && (charT == 'r' || charT == 'R')) {
+			reloadSkins();
+		}
+		return super.charTyped(charT, mods);
 	}
 
 	private ArrayList<Account> convertData() {
@@ -340,8 +290,10 @@ public class GuiAccountSelector extends GuiScreen {
 			if (data instanceof ExtendedAccountData) {
 				converted.add((ExtendedAccountData) data);
 			} else {
-				converted.add(new ExtendedAccountData(EncryptionTools.decode(data.user), EncryptionTools.decode(data.pass), data.alias));
-				AltDatabase.getInstance().getAlts().set(index, new ExtendedAccountData(EncryptionTools.decode(data.user), EncryptionTools.decode(data.pass), data.alias));
+				converted.add(new ExtendedAccountData(EncryptionTools.decode(data.user),
+						EncryptionTools.decode(data.pass), data.alias));
+				AltDatabase.getInstance().getAlts().set(index, new ExtendedAccountData(
+						EncryptionTools.decode(data.user), EncryptionTools.decode(data.pass), data.alias));
 			}
 			index++;
 		}
@@ -365,60 +317,57 @@ public class GuiAccountSelector extends GuiScreen {
 	}
 
 	private void updateButtons() {
-		login.enabled = !queriedaccounts.isEmpty() && (queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount || !EncryptionTools.decode(((ExtendedAccountData)queriedaccounts.get(selectedAccountIndex)).pass).equals(""));
-		loginoffline.enabled = !queriedaccounts.isEmpty();
-		delete.enabled = !queriedaccounts.isEmpty();
-		edit.enabled = !queriedaccounts.isEmpty() && queriedaccounts.get(selectedAccountIndex) instanceof ExtendedAccountData;
-		reloadskins.enabled = !queriedaccounts.isEmpty();
+		login.active = !queriedaccounts.isEmpty() && (queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount || !EncryptionTools.decode(((ExtendedAccountData)queriedaccounts.get(selectedAccountIndex)).pass).equals(""));
+		loginoffline.active = !queriedaccounts.isEmpty();
+		delete.active = !queriedaccounts.isEmpty();
+		edit.active = !queriedaccounts.isEmpty() && queriedaccounts.get(selectedAccountIndex) instanceof ExtendedAccountData;
+		reloadskins.active = !queriedaccounts.isEmpty();
 	}
 
-	class List extends GuiSlot {
+	class List extends SlotGui {
 		public List(Minecraft mcIn) {
 			super(mcIn, GuiAccountSelector.this.width, GuiAccountSelector.this.height, 32, GuiAccountSelector.this.height - 64, 14);
 		}
-
+		
 		@Override
-		protected int getSize() {
+		protected int getItemCount() {
 			return GuiAccountSelector.this.queriedaccounts.size();
 		}
 
 		@Override
-		protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY) {
-			GuiAccountSelector.this.selectedAccountIndex = slotIndex;
-			GuiAccountSelector.this.updateButtons();
-
-			if (isDoubleClick && GuiAccountSelector.this.login.enabled) {
-				GuiAccountSelector.this.login(slotIndex);
-			}
+		protected boolean isSelectedItem(int i) {
+			return i == GuiAccountSelector.this.selectedAccountIndex;
 		}
 
 		@Override
-		protected boolean isSelected(int slotIndex) {
-			return slotIndex == GuiAccountSelector.this.selectedAccountIndex;
+		protected void renderBackground(PoseStack ms) {
+			GuiAccountSelector.this.renderBackground(ms);
 		}
 
 		@Override
-		protected int getContentHeight() {
-			return GuiAccountSelector.this.queriedaccounts.size() * 14;
-		}
-
-		@Override
-		protected void drawBackground() {
-			GuiAccountSelector.this.drawDefaultBackground();
-		}
-
-		@Override
-		protected void drawSlot(int p_192637_1_, int p_192637_2_, int p_192637_3_, int p_192637_4_, int p_192637_5_, int p_192637_6_, float p_192637_7_) {
-			Account data = queriedaccounts.get(p_192637_1_);
-			String s = data.alias();
-			if (StringUtils.isEmpty(s)) {
-				s = I18n.format("ias.alt") + " " + (p_192637_1_ + 1);
+		protected void renderItem(PoseStack ms, int i1, int i2, int i3, int i4, int i5, int i6, float i7) {
+			Account data = queriedaccounts.get(i1);
+			Component s = new TextComponent(data.alias());
+			if (s.getString().isEmpty()) {
+				s = new TranslatableComponent("ias.alt").append(" ").append(String.valueOf(i1 + 1));
 			}
 			int color = 16777215;
-			if (Minecraft.getMinecraft().getSession().getUsername().equals(data.alias())) {
+			if (Minecraft.getInstance().getUser().getName().equals(data.alias())) {
 				color = 0x00FF00;
 			}
-			GuiAccountSelector.this.drawString(GuiAccountSelector.this.fontRenderer, s, p_192637_2_ + 2, p_192637_3_ + 1, color);
+			drawString(ms, font, s, i2 + 2, i3 + 1, color);
+		}
+		
+		@Override
+		public int getItemHeight() {
+			return GuiAccountSelector.this.queriedaccounts.size() * 14;
+		}
+		
+		@Override
+		protected boolean selectItem(int i, int i2, double mx, double my) {
+			GuiAccountSelector.this.selectedAccountIndex = i;
+			GuiAccountSelector.this.updateButtons();
+			return super.selectItem(i, i2, mx, my);
 		}
 	}
 }

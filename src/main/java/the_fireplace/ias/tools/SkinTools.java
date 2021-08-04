@@ -1,42 +1,46 @@
 package the_fireplace.ias.tools;
 
-import com.github.mrebhan.ingameaccountswitcher.tools.alt.AccountData;
-import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import ru.vidtu.iasfork.msauth.MicrosoftAccount;
-
-import javax.imageio.ImageIO;
-
-import org.lwjgl.opengl.Display;
-
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+
+import javax.imageio.ImageIO;
+
+import com.github.mrebhan.ingameaccountswitcher.tools.alt.AccountData;
+import com.github.mrebhan.ingameaccountswitcher.tools.alt.AltDatabase;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.mojang.blaze3d.vertex.PoseStack;
+
+import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import ru.vidtu.iasfork.msauth.MicrosoftAccount;
+
 /**
  * Tools that have to do with Skins
+ * 
  * @author The_Fireplace
  */
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class SkinTools {
-	public static final File cachedir = new File(Minecraft.getMinecraft().gameDir, "cachedImages/skins/");
-	private static final File skinOut = new File(cachedir, "temp.png");
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	public static final File cachedir = new File(Minecraft.getInstance().gameDirectory, "cachedImages/skins/");
+	private static final File skinOut = new File(cachedir, "temp.png");
 	public static void buildSkin(String name) {
 		try {
 			File f = new File(cachedir, name + ".png");
-			if (!f.exists()) loadFromMojang(Minecraft.getMinecraft(), name, f);
+			if (!f.exists()) loadFromMojang(Minecraft.getInstance(), name, f);
 			BufferedImage skin = ImageIO.read(f);
 			BufferedImage drawing = new BufferedImage(16, 32, BufferedImage.TYPE_INT_ARGB);
 			if (skin.getHeight() == 64) {// New skin type
@@ -100,10 +104,10 @@ public class SkinTools {
 		}
 	}
 	
-	public static void javDrawSkin(int x, int y, int width, int height) {
+	public static void javDrawSkin(PoseStack ms, int x, int y, int width, int height) {
 		if (!skinOut.exists()) return;
-		SkinRender r = new SkinRender(Minecraft.getMinecraft().getTextureManager(), skinOut);
-		r.drawImage(x, y, width, height);
+		SkinRender r = new SkinRender(Minecraft.getInstance().getTextureManager(), skinOut);
+		r.drawImage(ms, x, y, width, height);
 	}
 	
 	public static void cacheSkins(boolean force) {
@@ -111,10 +115,10 @@ public class SkinTools {
 			System.err.println("unable to load cachedir");
 			return;
 		}
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getInstance();
 		for (int i = 0; i < AltDatabase.getInstance().getAlts().size(); i++) {
 			AccountData data = AltDatabase.getInstance().getAlts().get(i);
-			Display.setTitle("Minecraft 1.12.2 (IAS: Updating skin " + data.alias + "...)");
+			mc.getWindow().setTitle("Minecraft* " + SharedConstants.getCurrentVersion().getName() + " (IAS: Updating skin " + data.alias + "...)");
 			File file = new File(cachedir, data.alias + ".png");
 			if (force || !file.exists()) {
 				loadFromMojang(mc, data.alias, file);
@@ -122,13 +126,13 @@ public class SkinTools {
 		}
 		for (int i = 0; i < MicrosoftAccount.msaccounts.size(); i++) {
 			MicrosoftAccount data = MicrosoftAccount.msaccounts.get(i);
-			Display.setTitle("Minecraft 1.12.2 (IAS: Updating skin " + data.alias() + "...)");
+			mc.getWindow().setTitle("Minecraft* " + SharedConstants.getCurrentVersion().getName() + " (IAS: Updating skin " + data.alias() + "...)");
 			File file = new File(cachedir, data.alias() + ".png");
 			if (force || !file.exists()) {
 				loadFromMojang(mc, data.alias(), file);
 			}
 		}
-		Display.setTitle("Minecraft 1.12.2");
+		mc.updateTitle();
 	}
 	
 	public static void loadFromMojang(Minecraft mc, String name, File f) {

@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.Sys;
+import org.lwjgl.glfw.GLFW;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -16,14 +16,16 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import net.minecraft.client.resources.I18n;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.I18n;
 import the_fireplace.ias.tools.HttpTools;
 
 public class AuthSys {
 	private static final Gson gson = new Gson();
 	private static volatile HttpServer srv;
     public static void start(MSAuthHandler h) {
-    	String done = "<html><body><h1>" + I18n.format("ias.msauth.canclosenow") + "</h1></body></html>";
+    	String done = "<html><body><h1>" + I18n.get("ias.msauth.canclosenow") + "</h1></body></html>";
     	new Thread(() -> {
     		try {
     			if (srv != null) {
@@ -31,13 +33,14 @@ public class AuthSys {
     				return;
     			}
     			h.setState("ias.msauth.state.waiting");
-    			if (!HttpTools.ping("http://minecraft.net")) throw new MicrosoftAuthException("No internet connection");
+    			if (!HttpTools.ping("http://minecraft.net")) throw new MicrosoftAuthException("No intenet connection");
         		srv = HttpServer.create(new InetSocketAddress(59125), 0);
             	srv.createContext("/", new HttpHandler() {
     				public void handle(HttpExchange ex) throws IOException {
     					try {
     						h.cancellble(false);
     						h.setState("ias.msauth.state.response");
+    						Minecraft.getInstance().execute(() -> GLFW.glfwFocusWindow(Minecraft.getInstance().getWindow().getWindow()));
     						ex.getResponseHeaders().add("Location", "http://localhost:59125/end");
     						ex.sendResponseHeaders(302, -1);
     						String s = ex.getRequestURI().getQuery();
@@ -46,7 +49,7 @@ public class AuthSys {
     						} else if (s.startsWith("code=")) {
     							accessTokenStep(s.replace("code=", ""), h);
     						} else if (s.equals("error=access_denied&error_description=The user has denied access to the scope requested by the client application.")) {
-    							h.error(new MicrosoftAuthException(I18n.format("ias.msauth.error.revoked")));
+    							h.error(new MicrosoftAuthException(I18n.get("ias.msauth.error.revoked")));
     						} else {
     							h.error(new MicrosoftAuthException(s));
     						}
@@ -73,7 +76,7 @@ public class AuthSys {
 					}
 				});
             	srv.start();
-            	Sys.openURL("https://login.live.com/oauth20_authorize.srf" +
+            	Util.getPlatform().openUri("https://login.live.com/oauth20_authorize.srf" +
                         "?client_id=54fd49e4-2103-4044-9603-2b028c814ec3" +
                         "&response_type=code" +
                         "&scope=XboxLive.signin%20XboxLive.offline_access" +
@@ -164,7 +167,7 @@ public class AuthSys {
         map.put("RelyingParty", "rp://api.minecraftservices.com/");
         map.put("TokenType", "JWT");
         pr.post(gson.toJson(map));
-        if (pr.response() == 401) throw new MicrosoftAuthException(I18n.format("ias.msauth.error.noxbox"));
+        if (pr.response() == 401) throw new MicrosoftAuthException(I18n.get("ias.msauth.error.noxbox"));
         if (pr.response() != 200) throw new MicrosoftAuthException("xsts response: " + pr.response());
         JsonObject jo = gson.fromJson(pr.body(), JsonObject.class);
         minecraftTokenStep(jo.getAsJsonObject("DisplayClaims").getAsJsonArray("xui").get(0)
@@ -185,7 +188,7 @@ public class AuthSys {
     	h.setState("ias.msauth.state.verify");
 		Request pr = new Request("https://api.minecraftservices.com/entitlements/mcstore").header("Authorization", "Bearer " + token).get();
         if (pr.response() != 200) throw new MicrosoftAuthException("minecraftStore response: " + pr.response());
-        if (gson.fromJson(pr.body(), JsonObject.class).getAsJsonArray("items").size() == 0) throw new MicrosoftAuthException(I18n.format("ias.msauth.error.gamenotowned"));
+        if (gson.fromJson(pr.body(), JsonObject.class).getAsJsonArray("items").size() == 0) throw new MicrosoftAuthException(I18n.get("ias.msauth.error.gamenotowned"));
         minecraftProfileVerify(token, refresh, h);
     }
 

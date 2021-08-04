@@ -13,7 +13,7 @@ import the_fireplace.ias.tools.JavaTools;
  */
 public class ExtendedAccountData extends AccountData implements Account {
 	private static final long serialVersionUID = -909128662161235160L;
-	/**Can be {@code null}*/
+
 	public Boolean premium;
 	public int[] lastused;
 	public int useCount;
@@ -63,7 +63,7 @@ public class ExtendedAccountData extends AccountData implements Account {
 	@Override
 	public Throwable login() {
 		Throwable t = AltManager.getInstance().setUser(user, pass);
-		if (t == null) Minecraft.getMinecraft().displayGuiScreen(null);
+		if (t == null) Minecraft.getInstance().setScreen(null);
 		return t;
 	}
 }

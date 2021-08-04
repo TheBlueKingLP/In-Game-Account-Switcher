@@ -28,7 +28,7 @@ public class MicrosoftAccount implements Account, Serializable {
 
 	public static void load(Minecraft mc) {
 		try {
-			File ms = new File(mc.gameDir, ".iasms");
+			File ms = new File(mc.gameDirectory, ".iasms");
 			if (!ms.exists()) return;
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ms));
 			msaccounts.add((MicrosoftAccount) ois.readObject());
@@ -41,7 +41,7 @@ public class MicrosoftAccount implements Account, Serializable {
 	
 	public static void save(Minecraft mc) {
 		try {
-			File ms = new File(mc.gameDir, ".iasms");
+			File ms = new File(mc.gameDirectory, ".iasms");
 			if (msaccounts.isEmpty()) {
 				if (ms.exists()) ms.delete();
 				return;
@@ -70,8 +70,8 @@ public class MicrosoftAccount implements Account, Serializable {
 
 	@Override
 	public Throwable login() {
-		Minecraft mc = Minecraft.getMinecraft();
-		mc.displayGuiScreen(new MSAuthScreen(mc.currentScreen, EncryptionTools.decode(accessToken), EncryptionTools.decode(refreshToken)));
+		Minecraft mc = Minecraft.getInstance();
+		mc.setScreen(new MSAuthScreen(mc.screen, EncryptionTools.decode(accessToken), EncryptionTools.decode(refreshToken)));
 		return null;
 	}
 }

@@ -2,54 +2,22 @@ package the_fireplace.ias.gui;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
-public class GuiPasswordField extends GuiTextField
+public class GuiPasswordField extends EditBox
 {
-	public GuiPasswordField(int componentId, FontRenderer fontrendererObj, int x, int y, int par5Width, int par6Height)
+	public GuiPasswordField(Font fontrendererObj, int x, int y, int par5Width, int par6Height, Component s)
 	{
-		super(componentId, fontrendererObj, x, y, par5Width, par6Height);
+		super(fontrendererObj, x, y, par5Width, par6Height, s);
+		setFormatter((t, u) -> new TextComponent(StringUtils.repeat('*', t.length())).getVisualOrderText());
 	}
-
+	
 	@Override
-	public void drawTextBox()
-	{
-		String password = getText();
-		replaceText(StringUtils.repeat('*', getText().length()));
-		super.drawTextBox();
-		replaceText(password);
-	}
-
-	@Override
-	public boolean textboxKeyTyped(char typedChar, int keyCode)
-	{
-		// Ignore ctrl+c and ctrl+x to prevent copying the contents of the field
-		return  !GuiScreen.isKeyComboCtrlC(keyCode) && !GuiScreen.isKeyComboCtrlX(keyCode) && super.textboxKeyTyped(typedChar, keyCode);
-	}
-
-	@Override
-	public boolean mouseClicked(int mouseX, int mouseY, int mouseButton)
-	{
-		// Minecraft has variable-width fonts, so replace the text with asterisks so that the correct cursor position is calculated
-		String password = getText();
-		replaceText(StringUtils.repeat('*', getText().length()));
-		super.mouseClicked(mouseX, mouseY, mouseButton);
-		replaceText(password);
-    return true;
-	}
-
-	/**
-	 * Sets the text of the field while maintaining the cursor positions
-	 * @param newText
-	 */
-	private void replaceText(String newText)
-	{
-		int cursorPosition = getCursorPosition();
-		int selectionEnd = getSelectionEnd();
-		setText(newText);
-		setCursorPosition(cursorPosition);
-		setSelectionPos(selectionEnd);
+	public boolean keyPressed(int key, int oldkey, int mods) {
+		return !Screen.isCopy(key) && !Screen.isCut(key) && super.keyPressed(key, oldkey, mods);
 	}
 }

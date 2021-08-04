@@ -1,19 +1,21 @@
 package the_fireplace.ias.events;
 
+import java.util.List;
+
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import com.github.mrebhan.ingameaccountswitcher.tools.Config;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiMultiplayer;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
-import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import the_fireplace.ias.config.ConfigValues;
 import the_fireplace.ias.gui.GuiAccountSelector;
 import the_fireplace.ias.gui.GuiButtonWithImage;
@@ -25,8 +27,8 @@ public class ClientEvents {
 	private static int textX, textY;
 	@SubscribeEvent
 	public void guiEvent(InitGuiEvent.Post event){
-		GuiScreen gui = event.getGui();
-		if(gui instanceof GuiMainMenu){
+		Screen gui = event.getGui();
+		if(gui instanceof TitleScreen){
 			try {
 				ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("JavaScript");
 				textX = ((Number) engine.eval(ConfigValues.TEXT_X.replace("%width%", Integer.toString(event.getGui().width))
@@ -37,34 +39,34 @@ public class ClientEvents {
 				textX = event.getGui().width / 2;
 				textY = event.getGui().height / 4 + 48 + 72 + 12 + 22;
 			}
-			event.getButtonList().add(new GuiButtonWithImage(20, gui.width / 2 + 104, (gui.height / 4 + 48) + 72 + 12));
-		} else if (gui instanceof GuiMultiplayer && ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN) {
-			event.getButtonList().add(new GuiButtonWithImage(203, event.getGui().width / 2 + 4 + 76 + 79, event.getGui().height - 28));
+			event.addWidget(new GuiButtonWithImage(gui.width / 2 + 104, gui.height / 4 + 48 + 72 - 12, btn -> {
+				if(Config.getInstance() == null){
+					Config.load();
+				}
+				Minecraft.getInstance().setScreen(new GuiAccountSelector(event.getGui()));
+			}));
+		} else if (gui instanceof JoinMultiplayerScreen  && ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN) {
+			event.addWidget(new GuiButtonWithImage(event.getGui().width / 2 + 4 + 76 + 79, event.getGui().height - 28, btn -> {
+				if (Config.getInstance() == null) {
+					Config.load();
+				}
+				Minecraft.getInstance().setScreen(new GuiAccountSelector(event.getGui()));
+			}));
 		}
 	}
+	
 	@SubscribeEvent
-	public void onClick(ActionPerformedEvent event){
-		if(event.getGui() instanceof GuiMainMenu && event.getButton().id == 20){
-			if(Config.getInstance() == null){
-				Config.load();
-			}
-			Minecraft.getMinecraft().displayGuiScreen(new GuiAccountSelector(event.getGui()));
-		}
-		if (event.getGui() instanceof GuiMultiplayer && event.getButton().id == 203) {
-			if(Config.getInstance() == null){
-				Config.load();
-			}
-			Minecraft.getMinecraft().displayGuiScreen(new GuiAccountSelector(event.getGui()));
-		}
-	}
-	@SubscribeEvent
-	public void onTick(DrawScreenEvent.Post t) {
-		GuiScreen screen = t.getGui();
-		if (screen instanceof GuiMainMenu) {
-			screen.drawCenteredString(Minecraft.getMinecraft().fontRenderer, I18n.format("ias.loggedinas") + Minecraft.getMinecraft().getSession().getUsername()+".", textX, textY, 0xFFCC8888);
-		}else if(screen instanceof GuiMultiplayer){
-			if (Minecraft.getMinecraft().getSession().getToken().equals("0")) {
-				screen.drawCenteredString(Minecraft.getMinecraft().fontRenderer, I18n.format("ias.offlinemode"), screen.width / 2, 10, 16737380);
+	public void onTick(GuiScreenEvent.DrawScreenEvent.Post t) {
+		Minecraft mc = Minecraft.getInstance();
+		Screen screen = mc.screen;
+		if (screen instanceof TitleScreen) {
+			Screen.drawCenteredString(t.getMatrixStack(), mc.font, new TranslatableComponent("ias.loggedinas").append(" " + Minecraft.getInstance().getUser().getName() + "."), textX, textY, 0xFFCC8888);
+		} else if(screen instanceof JoinMultiplayerScreen){
+			if (Minecraft.getInstance().getUser().getAccessToken().equals("0")) {
+				List<FormattedCharSequence> list = mc.font.split(new TranslatableComponent("ias.offlinemode"), t.getGui().width);
+				for (int i = 0; i < list.size(); i++) {
+					mc.font.drawShadow(t.getMatrixStack(), list.get(i), (float)(screen.width / 2 - mc.font.width(list.get(i)) / 2), i * 9 + 1, -1);
+				}
 			}
 		}
 	}

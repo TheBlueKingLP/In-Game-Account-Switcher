@@ -1,78 +1,61 @@
 package ru.vidtu.iasfork;
 
-import java.io.IOException;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.resources.I18n;
-import net.minecraftforge.fml.client.config.GuiCheckBox;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Checkbox;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import the_fireplace.ias.IAS;
 import the_fireplace.ias.config.ConfigValues;
 
-public class IASConfigScreen extends GuiScreen {
-	public final GuiScreen prev;
-	public GuiCheckBox caseS, relog, mpscreen;
-	public GuiTextField textX, textY;
-	public IASConfigScreen(GuiScreen prev) {
+public class IASConfigScreen extends Screen {
+	public final Screen prev;
+	public Checkbox caseS, relog, mpscreen;
+	public EditBox textX, textY;
+	public IASConfigScreen(Screen prev) {
+		super(new TextComponent("ias.properties"));
 		this.prev = prev;
 	}
 	
 	@Override
-	public void initGui() {
-		addButton(caseS = new GuiCheckBox(-1, width / 2 - fontRenderer.getStringWidth(I18n.format(ConfigValues.CASESENSITIVE_NAME)) / 2 - 10, 40, I18n.format(ConfigValues.CASESENSITIVE_NAME), ConfigValues.CASESENSITIVE));
-		addButton(relog = new GuiCheckBox(-2, width / 2 - fontRenderer.getStringWidth(I18n.format(ConfigValues.ENABLERELOG_NAME)) / 2 - 10, 60, I18n.format(ConfigValues.ENABLERELOG_NAME), ConfigValues.ENABLERELOG));
-		textX = new GuiTextField(-3, fontRenderer, width / 2 - 100, 90, 98, 20);
-		textY = new GuiTextField(-4, fontRenderer, width / 2 + 2, 90, 98, 20);
-		addButton(mpscreen = new GuiCheckBox(-3, width / 2 - fontRenderer.getStringWidth(I18n.format(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME)) / 2 - 10, 112, I18n.format(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME), ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN));
-		addButton(new GuiButton(0, width / 2 - 75, height - 24, 150, 20, I18n.format("gui.done")));
-		if (ConfigValues.TEXT_X != null) textX.setText(ConfigValues.TEXT_X);
-		if (ConfigValues.TEXT_Y != null) textY.setText(ConfigValues.TEXT_Y);
+	protected void init() { 
+		addRenderableWidget(caseS = new Checkbox(width / 2 - font.width(new TranslatableComponent(ConfigValues.CASESENSITIVE_NAME)) / 2 - 24, 40, 20, 20, new TranslatableComponent(ConfigValues.CASESENSITIVE_NAME), ConfigValues.CASESENSITIVE));
+		addRenderableWidget(relog = new Checkbox(width / 2 - font.width(new TranslatableComponent(ConfigValues.ENABLERELOG_NAME)) / 2 - 24, 60, 20, 20, new TranslatableComponent(ConfigValues.ENABLERELOG_NAME), ConfigValues.ENABLERELOG));
+		addRenderableWidget(textX = new EditBox(font, width / 2 - 100, 90, 98, 20, new TextComponent("X")));
+		addRenderableWidget(textY = new EditBox(font, width / 2 + 2, 90, 98, 20, new TextComponent("Y")));
+		addRenderableWidget(mpscreen = new Checkbox(width / 2 - font.width(new TranslatableComponent(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME)) / 2 - 24, 112, 20, 20, new TranslatableComponent(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME), ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN));
+		addRenderableWidget(new Button(width / 2 - 75, height - 24, 150, 20, new TranslatableComponent("gui.done"), btn -> {
+			minecraft.setScreen(prev);
+		}));
+		if (ConfigValues.TEXT_X != null) textX.setValue(ConfigValues.TEXT_X);
+		if (ConfigValues.TEXT_Y != null) textY.setValue(ConfigValues.TEXT_Y);
 	}
 	
 	@Override
-	protected void actionPerformed(GuiButton button) throws IOException {
-		if (button.id == 0) mc.displayGuiScreen(prev);
+	public void tick() {
+		textX.tick();
+		textY.tick();
+		super.tick();
 	}
 	
 	@Override
-	public void onGuiClosed() {
-		ConfigValues.CASESENSITIVE = caseS.isChecked();
-		ConfigValues.ENABLERELOG = relog.isChecked();
-		ConfigValues.TEXT_X = textX.getText();
-		ConfigValues.TEXT_Y = textY.getText();
-		ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN = mpscreen.isChecked();
+	public void removed() {
+		ConfigValues.CASESENSITIVE = caseS.selected();
+		ConfigValues.ENABLERELOG = relog.selected();
+		ConfigValues.TEXT_X = textX.getValue();
+		ConfigValues.TEXT_Y = textY.getValue();
+		ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN = mpscreen.selected();
 		IAS.syncConfig(true);
 	}
 	
 	@Override
-	protected void keyTyped(char typedChar, int keyCode) throws IOException {
-		textX.textboxKeyTyped(typedChar, keyCode);
-		textY.textboxKeyTyped(typedChar, keyCode);
-		super.keyTyped(typedChar, keyCode);
-	}
-	
-	@Override
-	public void updateScreen() {
-		textX.updateCursorCounter();
-		textY.updateCursorCounter();
-		super.updateScreen();
-	}
-	
-	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		textX.mouseClicked(mouseX, mouseY, mouseButton);
-		textY.mouseClicked(mouseX, mouseY, mouseButton);
-		super.mouseClicked(mouseX, mouseY, mouseButton);
-	}
-	
-	@Override
-	public void drawScreen(int mx, int my, float delta) {
-		drawDefaultBackground();
-		drawCenteredString(fontRenderer, "ias.properties", width / 2, 10, -1);
-		drawCenteredString(fontRenderer, I18n.format(ConfigValues.TEXT_POS_NAME), width / 2, 80, -1);
-		textX.drawTextBox();
-		textY.drawTextBox();
-		super.drawScreen(mx, my, delta);
+	public void render(PoseStack ms, int mx, int my, float delta) {
+		renderBackground(ms);
+		drawCenteredString(ms, font, this.title, width / 2, 10, -1);
+		drawCenteredString(ms, font, new TranslatableComponent(ConfigValues.TEXT_POS_NAME), width / 2, 80, -1);
+		super.render(ms, mx, my, delta);
 	}
 }
