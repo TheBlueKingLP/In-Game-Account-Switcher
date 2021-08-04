@@ -20,7 +20,7 @@ buildscript {
 apply plugin: 'forge'
 apply plugin: 'java'
 apply plugin: 'eclipse'
-version = "7.1.0-pre3"
+version = "7.1.0"
 archivesBaseName = "InGameAccountSwitcher-Forge-1.7.10"
 
 minecraft {
@@ -34,6 +34,10 @@ targetCompatibility = '1.8'
 compileJava {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
 }
 
 dependencies {

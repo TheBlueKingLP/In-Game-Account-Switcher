@@ -1,8 +1,8 @@
 package the_fireplace.ias.gui;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
 
-import joptsimple.internal.Strings;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -18,7 +18,7 @@ public class GuiPasswordField extends GuiTextField
 	public void drawTextBox()
 	{
 		String password = getText();
-		replaceText(Strings.repeat('*', getText().length()));
+		replaceText(StringUtils.repeat('*', getText().length()));
 		super.drawTextBox();
 		replaceText(password);
 	}
@@ -35,7 +35,7 @@ public class GuiPasswordField extends GuiTextField
 	{
 		// Minecraft has variable-width fonts, so replace the text with asterisks so that the correct cursor position is calculated
 		String password = getText();
-		replaceText(Strings.repeat('*', getText().length()));
+		replaceText(StringUtils.repeat('*', getText().length()));
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 		replaceText(password);
 	}
