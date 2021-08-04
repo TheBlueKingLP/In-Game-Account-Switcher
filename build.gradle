@@ -6,7 +6,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = "InGameAccountSwitcher-Fabric-1.15.2"
-version = "7.1.0-pre3"
+version = "7.1.0"
 
 repositories {
     maven { url = "https://maven.terraformersmc.com/releases/" }
@@ -15,7 +15,7 @@ repositories {
 dependencies {
 	minecraft "com.mojang:minecraft:1.15.2"
 	mappings "net.fabricmc:yarn:1.15.2+build.17:v2"
-	modImplementation "net.fabricmc:fabric-loader:0.11.3"
+	modImplementation "net.fabricmc:fabric-loader:0.11.6"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:0.28.5+1.15"
 	modImplementation "com.terraformersmc:modmenu:1.10.6"
 }
