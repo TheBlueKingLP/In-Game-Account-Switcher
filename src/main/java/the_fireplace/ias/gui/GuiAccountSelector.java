@@ -17,6 +17,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiSlot;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.resources.I18n;
 import ru.vidtu.iasfork.msauth.Account;
 import ru.vidtu.iasfork.msauth.MicrosoftAccount;
@@ -192,13 +193,20 @@ public class GuiAccountSelector extends GuiScreen {
   /**
    * Delete the selected account
    */
-  private void delete() {
-    AltDatabase.getInstance().getAlts().remove(getCurrentAsEditable());
-    if (this.queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount) MicrosoftAccount.msaccounts.remove(this.queriedaccounts.get(selectedAccountIndex));
-    if (selectedAccountIndex > 0) selectedAccountIndex--;
-    updateQueried();
-    updateButtons();
-  }
+	private void delete() {
+		mc.displayGuiScreen(new GuiYesNo((b, i) -> {
+			if (b) {
+				AltDatabase.getInstance().getAlts().remove(getCurrentAsEditable());
+				if (this.queriedaccounts.get(selectedAccountIndex) instanceof MicrosoftAccount)
+					MicrosoftAccount.msaccounts.remove(this.queriedaccounts.get(selectedAccountIndex));
+				if (selectedAccountIndex > 0)
+					selectedAccountIndex--;
+				updateQueried();
+				updateButtons();
+			}
+			mc.displayGuiScreen(this);
+		}, I18n.format("ias.delete.title"), I18n.format("ias.delete.text", queriedaccounts.get(selectedAccountIndex).alias()), 0));
+	}
 
   /**
    * Add an account
