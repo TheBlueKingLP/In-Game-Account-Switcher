@@ -9,7 +9,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import the_fireplace.iasencrypt.EncryptionTools;
 
 /**
@@ -24,9 +24,9 @@ public abstract class AbstractAccountGui extends Screen
 	private Button complete;
 	protected boolean hasUserChanged = false;
 
-	public AbstractAccountGui(Screen prev, String actionString)
+	public AbstractAccountGui(Screen prev, ITextComponent actionString)
 	{
-		super(new TranslationTextComponent(actionString));
+		super(actionString);
 		this.prev = prev;
 	}
 	
