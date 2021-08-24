@@ -63,7 +63,7 @@ public class GuiAccountSelector extends GuiScreen {
     query = I18n.format("ias.search");
     this.buttonList.clear();
     //Above Top Row
-    this.buttonList.add(reloadskins = new GuiButton(8, this.width / 2 - 154 - 10, this.height - 76 - 8, 120, 20, I18n.format("ias.reloadskins")));
+    this.buttonList.add(reloadskins = new GuiButton(8, 2, 2, 120, 20, I18n.format("ias.reloadskins")));
     //Top Row
     this.buttonList.add(new GuiButton(0, this.width / 2 + 4 + 40, this.height - 52, 120, 20, I18n.format("ias.addaccount")));
     this.buttonList.add(login = new GuiButton(1, this.width / 2 - 154 - 10, this.height - 52, 120, 20, I18n.format("ias.login")));

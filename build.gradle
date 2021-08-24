@@ -20,7 +20,7 @@ buildscript {
 apply plugin: 'forge'
 apply plugin: 'java'
 apply plugin: 'eclipse'
-version = "7.1.0"
+version = System.getProperty("ias.version", "unknown")
 archivesBaseName = "InGameAccountSwitcher-Forge-1.7.10"
 
 minecraft {
@@ -41,4 +41,10 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 dependencies {
+}
+
+processResources {
+	filesMatching("mcmod.info") {
+		expand "version": System.getProperty("ias.version", "unknown")
+	}
 }
