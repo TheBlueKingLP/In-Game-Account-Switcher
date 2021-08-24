@@ -3,7 +3,7 @@ loaderVersion="[28,)"
 issueTrackerURL="https://github.com/VidTuGit/In-Game-Account-Switcher/issues"
 [[mods]]
 modId="ias"
-version="7.1.0"
+version="${file.jarVersion}"
 displayName="In-Game Account Switcher"
 updateJSONURL="https://raw.githubusercontent.com/VidTuGit/In-Game-Account-Switcher/main/updater-forge.json"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/in-game-account-switcher"

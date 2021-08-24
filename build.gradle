@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://maven.minecraftforge.net/' }
         jcenter()
         mavenCentral()
     }
@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
-version = '7.1.0'
+version = System.getProperty("ias.version", "unknown")
 archivesBaseName = 'InGameAccountSwitcher-Forge-1.14.4'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -24,10 +24,14 @@ minecraft {
         client {
             workingDirectory project.file('run')
         }
-        server {
-            workingDirectory project.file('run')
-        }
-        data {}
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Implementation-Version": System.getProperty("ias.version", "unknown")
+        ])
     }
 }
 
