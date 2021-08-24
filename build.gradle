@@ -1,12 +1,12 @@
 plugins {
-	id 'fabric-loom' version '0.6-SNAPSHOT'
+	id 'fabric-loom' version '0.7-SNAPSHOT'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = "InGameAccountSwitcher-Fabric-1.15.2"
-version = "7.1.0"
+version = System.getProperty("ias.version", "unknown")
 
 repositories {
     maven { url = "https://maven.terraformersmc.com/releases/" }
@@ -25,6 +25,12 @@ tasks.withType(JavaCompile).configureEach {
 	def targetVersion = 8
 	if (JavaVersion.current().isJava9Compatible()) {
 		 it.options.release = targetVersion
+	}
+}
+
+processResources {
+	filesMatching("fabric.mod.json") {
+		expand "version": System.getProperty("ias.version", "unknown")
 	}
 }
 
