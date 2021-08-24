@@ -17,7 +17,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = '7.1.0'
+version = System.getProperty("ias.version", "unknown")
 archivesBaseName = 'InGameAccountSwitcher-Forge-1.8.9'
 
 minecraft {
@@ -32,4 +32,10 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 dependencies {
+}
+
+processResources {
+	filesMatching("mcmod.info") {
+		expand "version": System.getProperty("ias.version", "unknown")
+	}
 }
