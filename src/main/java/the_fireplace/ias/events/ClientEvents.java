@@ -2,8 +2,7 @@ package the_fireplace.ias.events;
 
 import java.util.List;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
+import org.apache.commons.lang3.StringUtils;
 
 import com.github.mrebhan.ingameaccountswitcher.tools.Config;
 
@@ -15,6 +14,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import ru.vidtu.iasfork.Expression;
 import the_fireplace.ias.config.ConfigValues;
 import the_fireplace.ias.gui.GuiAccountSelector;
 import the_fireplace.ias.gui.GuiButtonWithImage;
@@ -29,14 +29,17 @@ public class ClientEvents {
 		GuiScreen gui = event.getGui();
 		if(gui instanceof GuiMainMenu) {
 			try {
-				ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
-				textX = ((Number) engine.eval(ConfigValues.TEXT_X.replace("%width%", Integer.toString(event.getGui().width))
-						.replace("%height%", Integer.toString(event.getGui().height)))).intValue();
-				textY = ((Number) engine.eval(ConfigValues.TEXT_Y.replace("%width%", Integer.toString(event.getGui().width))
-						.replace("%height%", Integer.toString(event.getGui().height)))).intValue();
+				if (StringUtils.isNotBlank(ConfigValues.TEXT_X) && StringUtils.isNotBlank(ConfigValues.TEXT_Y)) {
+					textX = (int) new Expression(ConfigValues.TEXT_X.replace("%width%", Integer.toString(event.getGui().width)).replace("%height%", Integer.toString(event.getGui().height))).parse(0);
+					textY = (int) new Expression(ConfigValues.TEXT_Y.replace("%width%", Integer.toString(event.getGui().width)).replace("%height%", Integer.toString(event.getGui().height))).parse(0);
+				} else {
+					textX = event.getGui().width / 2;
+					textY = event.getGui().height / 4 + 48 + 72 + 12 + 22;
+				}
 			} catch (Throwable t) {
+				t.printStackTrace();
 				textX = event.getGui().width / 2;
-				textY = event.getGui().height / 4 + 48 + 72 + 12 + 22;
+				textY = event.getGui().height / 4 + 48 + 72 + 12 + 2;
 			}
 			event.addButton(new GuiButtonWithImage(gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12, () -> {
 				if(Config.getInstance() == null){

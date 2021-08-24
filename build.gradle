@@ -9,25 +9,28 @@ buildscript {
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 
-version = '7.1.0'
+version = System.getProperty("ias.version", "unknown")
 archivesBaseName = 'InGameAccountSwitcher-Forge-1.13.2'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
     mappings channel: 'snapshot', version: '20180921-1.13'
-    // makeObfSourceJar = false
     //accessTransformer = file('build/resources/main/META-INF/accesstransformer.cfg')
     runs {
         client {
             workingDirectory project.file('run')
         }
-        server {
-            workingDirectory project.file('run')
-        }
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Implementation-Version": System.getProperty("ias.version", "unknown")
+        ])
     }
 }
 
