@@ -63,7 +63,7 @@ public class GuiAccountSelector extends GuiScreen {
 		query = I18n.format("ias.search");
 		this.buttonList.clear();
 		// Above Top Row
-		this.buttonList.add(reloadskins = new GuiButton(8, this.width / 2 - 154 - 10, this.height - 76 - 8, 120, 20, I18n.format("ias.reloadskins")));
+		this.buttonList.add(reloadskins = new GuiButton(8, 2, 2, 120, 20, I18n.format("ias.reloadskins")));
 		// Top Row
 		this.buttonList.add(new GuiButton(0, this.width / 2 + 4 + 40, this.height - 52, 120, 20, I18n.format("ias.addaccount")));
 		this.buttonList.add(login = new GuiButton(1, this.width / 2 - 154 - 10, this.height - 52, 120, 20, I18n.format("ias.login")));
@@ -129,7 +129,6 @@ public class GuiAccountSelector extends GuiScreen {
 		if (loginfailed != null) {
 			this.drawCenteredString(fontRenderer, loginfailed.getLocalizedMessage(), this.width / 2, this.height - 62, 16737380);
 		}
-		search.drawTextBox();
 		if (!queriedaccounts.isEmpty()) {
 			SkinTools.javDrawSkin(8, height / 2 - 64 - 16, 64, 128);
 			Tools.drawBorderedRect(width - 8 - 64, height / 2 - 64 - 16, width - 8, height / 2 + 64 - 16, 2, -5855578, -13421773);
@@ -149,6 +148,7 @@ public class GuiAccountSelector extends GuiScreen {
 				this.drawString(fontRenderer, I18n.format("ias.premium"), width - 8 - 61, height / 2 - 64 - 13, 6618980);
 			}
 		}
+		search.drawTextBox();
 		super.drawScreen(par1, par2, par3);
 	}
 

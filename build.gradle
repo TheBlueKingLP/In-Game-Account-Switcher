@@ -12,7 +12,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
-version = '7.1.0'
+version = System.getProperty("ias.version", "unknown")
 archivesBaseName = 'InGameAccountSwitcher-Forge-1.12.2'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -25,13 +25,18 @@ minecraft {
         client {
             workingDirectory project.file('run')
         }
-        server {}
     }
 }
 
 jar {
 	manifest {
 		attributes 'FMLAT': 'ias_at.cfg'
+	}
+}
+
+processResources {
+	filesMatching("mcmod.info") {
+		expand "version": System.getProperty("ias.version", "unknown")
 	}
 }
 
