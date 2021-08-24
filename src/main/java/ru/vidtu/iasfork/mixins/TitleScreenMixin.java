@@ -1,8 +1,6 @@
 package ru.vidtu.iasfork.mixins;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-
+import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,6 +14,7 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import ru.vidtu.iasfork.Expression;
 import ru.vidtu.iasfork.IASMMPos;
 import the_fireplace.ias.config.ConfigValues;
 import the_fireplace.ias.gui.GuiAccountSelector;
@@ -38,10 +37,15 @@ public class TitleScreenMixin extends Screen {
 			skinsLoaded = true;
 		}
 		try {
-			ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("JavaScript");
-			textX = ((Number) engine.eval(ConfigValues.TEXT_X.replace("%width%", Integer.toString(width)).replace("%height%", Integer.toString(height)))).intValue();
-			textY = ((Number) engine.eval(ConfigValues.TEXT_Y.replace("%width%", Integer.toString(width)).replace("%height%", Integer.toString(height)))).intValue();
+			if (StringUtils.isNotBlank(ConfigValues.TEXT_X) && StringUtils.isNotBlank(ConfigValues.TEXT_Y)) {
+				textX = (int) new Expression(ConfigValues.TEXT_X.replace("%width%", Integer.toString(width)).replace("%height%", Integer.toString(height))).parse(0);
+				textY = (int) new Expression(ConfigValues.TEXT_Y.replace("%width%", Integer.toString(width)).replace("%height%", Integer.toString(height))).parse(0);
+			} else {
+				textX = width / 2;
+				textY = height / 4 + 48 + 72 + 12 + (modMenu?32:22);
+			}
 		} catch (Throwable t) {
+			t.printStackTrace();
 			textX = width / 2;
 			textY = height / 4 + 48 + 72 + 12 + (modMenu?32:22);
 		}
